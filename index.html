@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PerceivIQ Data Dictionary</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --ink: #1c1b19;
+    --muted: #5c5a55;
+    --line: #e2dfd8;
+    --accent: #0f4c5c;
+    --chip: #f0eee8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.45;
+  }
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 64px;
+  }
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 650;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+  }
+  .lede {
+    color: var(--muted);
+    max-width: 62ch;
+    margin: 0 0 24px;
+  }
+  .stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-width: 120px;
+  }
+  .stat strong {
+    display: block;
+    font-size: 1.35rem;
+    color: var(--accent);
+  }
+  .stat span {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: end;
+    margin-bottom: 20px;
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  select, input[type="search"] {
+    font: inherit;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    min-width: 260px;
+  }
+  input[type="search"] { min-width: 220px; }
+  .meta { margin-bottom: 12px; }
+  .meta h2 { margin: 0 0 6px; font-size: 1.25rem; }
+  .chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .chip {
+    background: var(--chip);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: ui-monospace, Consolas, monospace;
+  }
+  .grain { color: var(--muted); margin: 0 0 6px; }
+  .note { color: var(--muted); font-size: 0.88rem; margin: 0 0 16px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th {
+    background: #f0eee8;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  tr:last-child td { border-bottom: none; }
+  td.field {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    color: var(--accent);
+  }
+  td.type {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .overview { margin-top: 36px; }
+  .overview h3 { margin: 0 0 12px; font-size: 1rem; }
+  .overview button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font: inherit;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+  }
+  footer {
+    margin-top: 28px;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+  @media print {
+    .controls { display: none; }
+    body { background: white; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>PerceivIQ Data Dictionary</h1>
+    <p class="lede">
+      Interactive field catalog for monthly and weekly SFTP deliverables plus flat reference files.
+      Parquet / Snappy. Scope: US-headquartered companies from Revelio shared public &amp; private lists;
+      dynamics, postings, and sentiment time series start May 2021 where applicable.
+      Sentiment scores: v1 = <code>{theme}_sentiment</code> (unweighted avg); v2 = <code>sentiment_{theme}</code> (confidence-weighted).
+      Paths are relative to the PerceivIQ SFTP root: <code>&lt;YYYYMM&gt;</code> identifies a monthly batch and
+      <code>&lt;YYYYMMDD&gt;</code> identifies a Friday weekly delivery.
+      June 2026 examples: <code>first_phase_deliveries/202606/</code> and
+      <code>202606/occupation_geography_wages/</code>.
+    </p>
+
+    <div class="stats">
+      <div class="stat"><strong id="stat-datasets">0</strong><span>Datasets</span></div>
+      <div class="stat"><strong id="stat-fields">0</strong><span>Total fields</span></div>
+      <div class="stat"><strong id="stat-view">0</strong><span>Fields in view</span></div>
+    </div>
+
+    <div class="controls">
+      <label>Dataset
+        <select id="dataset"></select>
+      </label>
+      <label>Filter fields
+        <input id="filter" type="search" placeholder="Search field or description…" />
+      </label>
+    </div>
+
+    <div class="meta">
+      <div class="chips">
+        <span class="chip" id="path"></span>
+        <span class="chip" id="count"></span>
+      </div>
+      <h2 id="title"></h2>
+      <p class="grain" id="grain"></p>
+      <p class="note" id="notes" hidden></p>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="overview">
+      <h3>All datasets</h3>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Dataset</th><th>Cadence</th><th>SFTP path / file pattern</th><th>Fields</th></tr>
+        </thead>
+        <tbody id="overview"></tbody>
+      </table>
+    </div>
+
+    <footer>
+      Generated for PerceivIQ. Open this file in any browser — no install required.
+    </footer>
+  </div>
+
+<script>
+const DATASETS = [
+  {
+    "id": "company_reference",
+    "index": 0,
+    "name": "Company reference",
+    "path": "<YYYYMM>/company_ref/company_ref_*.parquet",
+    "grain": "Company identifiers and ownership hierarchy",
+    "notes": null,
+    "fields": [
+      {
+        "name": "rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio company ID"
+      },
+      {
+        "name": "company",
+        "type": "VARCHAR(512)",
+        "description": "Primary company name"
+      },
+      {
+        "name": "factset_entity_id",
+        "type": "VARCHAR(512)",
+        "description": "FactSet entity identifier, when available"
+      },
+      {
+        "name": "year_founded",
+        "type": "VARCHAR(512)",
+        "description": "Year the company was founded"
+      },
+      {
+        "name": "ticker",
+        "type": "VARCHAR(512)",
+        "description": "Primary equity ticker, when available"
+      },
+      {
+        "name": "exchange_name",
+        "type": "VARCHAR(512)",
+        "description": "Exchange associated with the ticker"
+      },
+      {
+        "name": "sedol",
+        "type": "VARCHAR(256)",
+        "description": "SEDOL security identifier"
+      },
+      {
+        "name": "isin",
+        "type": "VARCHAR(256)",
+        "description": "ISIN security identifier"
+      },
+      {
+        "name": "cusip",
+        "type": "VARCHAR(256)",
+        "description": "CUSIP security identifier"
+      },
+      {
+        "name": "url",
+        "type": "VARCHAR(1024)",
+        "description": "Company website URL"
+      },
+      {
+        "name": "naics_code",
+        "type": "VARCHAR(256)",
+        "description": "NAICS industry classification code"
+      },
+      {
+        "name": "cik",
+        "type": "VARCHAR(256)",
+        "description": "SEC Central Index Key"
+      },
+      {
+        "name": "lei",
+        "type": "VARCHAR(1024)",
+        "description": "Legal Entity Identifier"
+      },
+      {
+        "name": "linkedin_url",
+        "type": "VARCHAR(1024)",
+        "description": "LinkedIn company page URL"
+      },
+      {
+        "name": "child_rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Subsidiary / child company rcid"
+      },
+      {
+        "name": "child_company",
+        "type": "VARCHAR(512)",
+        "description": "Name of the child company"
+      },
+      {
+        "name": "child_linkedin_url",
+        "type": "VARCHAR(512)",
+        "description": "LinkedIn URL for the child company"
+      },
+      {
+        "name": "ultimate_parent_rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Ultimate parent company rcid"
+      },
+      {
+        "name": "ultimate_parent_rcid_name",
+        "type": "VARCHAR(512)",
+        "description": "Ultimate parent company name"
+      }
+    ]
+  },
+  {
+    "id": "workforce_dynamics",
+    "index": 1,
+    "name": "Workforce dynamics",
+    "path": "<YYYYMM>/workforce_dynamics/workforce_dynamics_*.parquet",
+    "grain": "Monthly slices by company, seniority, region, country, state, metro area, and job category (`role_k10`)",
+    "notes": "Start: May 2021",
+    "fields": [
+      {
+        "name": "rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio company ID"
+      },
+      {
+        "name": "company",
+        "type": "VARCHAR(512)",
+        "description": "Company name"
+      },
+      {
+        "name": "seniority",
+        "type": "NUMBER(38,0)",
+        "description": "Seniority level"
+      },
+      {
+        "name": "region",
+        "type": "VARCHAR(512)",
+        "description": "Geographic region"
+      },
+      {
+        "name": "country",
+        "type": "VARCHAR(512)",
+        "description": "Country"
+      },
+      {
+        "name": "state",
+        "type": "VARCHAR(512)",
+        "description": "State / province"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Metro / metropolitan statistical area"
+      },
+      {
+        "name": "job_category",
+        "type": "VARCHAR(512)",
+        "description": "Job taxonomy role cluster (role_k10), delivered as `job_category`"
+      },
+      {
+        "name": "month",
+        "type": "VARCHAR(7)",
+        "description": "Observation month (`YYYY-MM`)"
+      },
+      {
+        "name": "count",
+        "type": "FLOAT",
+        "description": "Scaled headcount in the slice"
+      },
+      {
+        "name": "inflow",
+        "type": "FLOAT",
+        "description": "Internal inflow into the slice"
+      },
+      {
+        "name": "outflow",
+        "type": "FLOAT",
+        "description": "Internal outflow from the slice"
+      },
+      {
+        "name": "external_inflow",
+        "type": "FLOAT",
+        "description": "External hiring into the slice"
+      },
+      {
+        "name": "external_outflow",
+        "type": "FLOAT",
+        "description": "External attrition from the slice"
+      },
+      {
+        "name": "salary",
+        "type": "FLOAT",
+        "description": "Average modeled salary for the slice"
+      },
+      {
+        "name": "duration",
+        "type": "FLOAT",
+        "description": "Average tenure / duration in role"
+      },
+      {
+        "name": "total_prestige",
+        "type": "FLOAT",
+        "description": "Sum of prestige scores used for weighted prestige"
+      },
+      {
+        "name": "prestige_weight",
+        "type": "FLOAT",
+        "description": "Weight for prestige aggregation"
+      }
+    ]
+  },
+  {
+    "id": "skill_dynamics",
+    "index": 2,
+    "name": "Skill dynamics",
+    "path": "<YYYYMM>/skill_dynamics/skill_dynamics_*.parquet",
+    "grain": "Monthly slices by company, seniority, region, role, and skill taxonomy hierarchy",
+    "notes": "Start: May 2021",
+    "fields": [
+      {
+        "name": "rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio company ID"
+      },
+      {
+        "name": "company",
+        "type": "VARCHAR(512)",
+        "description": "Company name"
+      },
+      {
+        "name": "seniority",
+        "type": "NUMBER(38,0)",
+        "description": "Seniority level"
+      },
+      {
+        "name": "region",
+        "type": "VARCHAR(512)",
+        "description": "Geographic region"
+      },
+      {
+        "name": "role_k10",
+        "type": "VARCHAR(512)",
+        "description": "Job taxonomy role cluster (k10)"
+      },
+      {
+        "name": "skill_k15",
+        "type": "VARCHAR(512)",
+        "description": "Coarse skill taxonomy cluster"
+      },
+      {
+        "name": "skill_k50",
+        "type": "VARCHAR(512)",
+        "description": "Primary skill taxonomy cluster"
+      },
+      {
+        "name": "skill_k150",
+        "type": "VARCHAR(512)",
+        "description": "Finer skill taxonomy cluster"
+      },
+      {
+        "name": "month",
+        "type": "VARCHAR(7)",
+        "description": "Observation month (`YYYY-MM`)"
+      },
+      {
+        "name": "count",
+        "type": "FLOAT",
+        "description": "Scaled count of workers with the skill in the slice"
+      },
+      {
+        "name": "inflow",
+        "type": "FLOAT",
+        "description": "Internal skill inflow"
+      },
+      {
+        "name": "outflow",
+        "type": "FLOAT",
+        "description": "Internal skill outflow"
+      },
+      {
+        "name": "external_inflow",
+        "type": "FLOAT",
+        "description": "External skill inflow (hires)"
+      },
+      {
+        "name": "external_outflow",
+        "type": "FLOAT",
+        "description": "External skill outflow (attrition)"
+      }
+    ]
+  },
+  {
+    "id": "postings_dynamics",
+    "index": 3,
+    "name": "Postings dynamics",
+    "path": "<YYYYMM>/postings_dynamics/postings_dynamics_*.parquet",
+    "grain": "Monthly slices from unified (COSMOS) job postings by company, country, state, metro area, and role",
+    "notes": "Start: May 2021 Notes: Does **not** include county. Geographic granularity stops at metro area.",
+    "fields": [
+      {
+        "name": "rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio company ID"
+      },
+      {
+        "name": "company",
+        "type": "VARCHAR(512)",
+        "description": "Company name"
+      },
+      {
+        "name": "country",
+        "type": "VARCHAR(512)",
+        "description": "Posting country"
+      },
+      {
+        "name": "state",
+        "type": "VARCHAR(512)",
+        "description": "Posting state / province"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Posting metro / MSA"
+      },
+      {
+        "name": "job_category",
+        "type": "VARCHAR(512)",
+        "description": "Job taxonomy role_k10, delivered as `job_category`"
+      },
+      {
+        "name": "role_k50",
+        "type": "VARCHAR(512)",
+        "description": "Medium-grain job role cluster"
+      },
+      {
+        "name": "role_k150",
+        "type": "VARCHAR(512)",
+        "description": "Finer job role cluster"
+      },
+      {
+        "name": "month",
+        "type": "VARCHAR(7)",
+        "description": "Observation month (`YYYY-MM`)"
+      },
+      {
+        "name": "active_posting",
+        "type": "FLOAT",
+        "description": "Count of active postings in the month"
+      },
+      {
+        "name": "new_posting",
+        "type": "FLOAT",
+        "description": "Count of newly posted jobs in the month"
+      },
+      {
+        "name": "removed_posting",
+        "type": "FLOAT",
+        "description": "Count of postings removed / closed in the month"
+      },
+      {
+        "name": "active_salary_avg",
+        "type": "FLOAT",
+        "description": "Average salary among active postings"
+      },
+      {
+        "name": "new_salary_avg",
+        "type": "FLOAT",
+        "description": "Average salary among new postings"
+      },
+      {
+        "name": "removed_salary_avg",
+        "type": "FLOAT",
+        "description": "Average salary among removed postings"
+      },
+      {
+        "name": "filling_time_avg",
+        "type": "FLOAT",
+        "description": "Average days to fill (post date to remove date) for closed postings"
+      },
+      {
+        "name": "expected_hires",
+        "type": "FLOAT",
+        "description": "Sum of expected hires across postings in the slice (unified source only)"
+      }
+    ]
+  },
+  {
+    "id": "sentiment_review_trends",
+    "index": 4,
+    "name": "Sentiment review trends",
+    "path": "<YYYYMM>/sentiment_review_trends/sentiment_review_trends_*.parquet",
+    "grain": "Monthly Glassdoor **star-rating** trends by company, region, and job category",
+    "notes": "Start: May 2021 Notes: These are Glassdoor ratings / recommend flags, **not** NLP theme scores (see Sentiment scores).",
+    "fields": [
+      {
+        "name": "rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio company ID"
+      },
+      {
+        "name": "company",
+        "type": "VARCHAR(512)",
+        "description": "Company name"
+      },
+      {
+        "name": "region",
+        "type": "VARCHAR(512)",
+        "description": "Review region"
+      },
+      {
+        "name": "job_category",
+        "type": "VARCHAR(512)",
+        "description": "Job taxonomy role_k10, delivered as `job_category`"
+      },
+      {
+        "name": "month",
+        "type": "VARCHAR(7)",
+        "description": "Trend month (`YYYY-MM`)"
+      },
+      {
+        "name": "rating_overall",
+        "type": "FLOAT",
+        "description": "Rolling-window average overall Glassdoor rating"
+      },
+      {
+        "name": "rating_career_opportunities",
+        "type": "FLOAT",
+        "description": "Rolling-window career opportunities rating"
+      },
+      {
+        "name": "rating_compensation_and_benefits",
+        "type": "FLOAT",
+        "description": "Rolling-window compensation & benefits rating"
+      },
+      {
+        "name": "rating_culture_and_values",
+        "type": "FLOAT",
+        "description": "Rolling-window culture & values rating"
+      },
+      {
+        "name": "rating_diversity_and_inclusion",
+        "type": "FLOAT",
+        "description": "Rolling-window diversity & inclusion rating"
+      },
+      {
+        "name": "rating_senior_leadership",
+        "type": "FLOAT",
+        "description": "Rolling-window senior leadership rating"
+      },
+      {
+        "name": "rating_work_life_balance",
+        "type": "FLOAT",
+        "description": "Rolling-window work\u2013life balance rating"
+      },
+      {
+        "name": "rating_ceo",
+        "type": "FLOAT",
+        "description": "Rolling-window CEO approval / rating"
+      },
+      {
+        "name": "rating_recommend_to_friend",
+        "type": "FLOAT",
+        "description": "Rolling-window recommend-to-friend score"
+      },
+      {
+        "name": "rating_business_outlook",
+        "type": "FLOAT",
+        "description": "Rolling-window business outlook score"
+      },
+      {
+        "name": "num_reviews",
+        "type": "FLOAT",
+        "description": "Number of reviews contributing to the window"
+      }
+    ]
+  },
+  {
+    "id": "sentiment_individual_reviews",
+    "index": 5,
+    "name": "Sentiment individual reviews",
+    "path": "<YYYYMM>/sentiment_individual_reviews/sentiment_individual_reviews_*.parquet",
+    "grain": "One row per Glassdoor review",
+    "notes": "Start: Reviews with `review_date_time` on or after 2021-05-01",
+    "fields": [
+      {
+        "name": "rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio company ID"
+      },
+      {
+        "name": "company",
+        "type": "VARCHAR(512)",
+        "description": "Company name"
+      },
+      {
+        "name": "review_id",
+        "type": "NUMBER(38,0)",
+        "description": "Glassdoor review identifier"
+      },
+      {
+        "name": "title_raw",
+        "type": "VARCHAR(512)",
+        "description": "Raw job title on the review"
+      },
+      {
+        "name": "role_k10",
+        "type": "VARCHAR(512)",
+        "description": "Mapped job role cluster (k10)"
+      },
+      {
+        "name": "role_k50",
+        "type": "VARCHAR(512)",
+        "description": "Mapped job role cluster (k50)"
+      },
+      {
+        "name": "role_k150",
+        "type": "VARCHAR(512)",
+        "description": "Mapped job role cluster (k150)"
+      },
+      {
+        "name": "seniority",
+        "type": "NUMBER(38,0)",
+        "description": "Seniority of reviewer job, when available"
+      },
+      {
+        "name": "review_date_time",
+        "type": "TIMESTAMP_NTZ(9)",
+        "description": "Review timestamp"
+      },
+      {
+        "name": "location_raw",
+        "type": "VARCHAR(512)",
+        "description": "Raw location string on the review"
+      },
+      {
+        "name": "review_language_id",
+        "type": "VARCHAR(512)",
+        "description": "Detected language of the review"
+      },
+      {
+        "name": "review_iscovid19",
+        "type": "BOOLEAN",
+        "description": "Glassdoor COVID-19 related flag"
+      },
+      {
+        "name": "reviewer_current_job",
+        "type": "BOOLEAN",
+        "description": "Whether the reviewer was a current employee"
+      },
+      {
+        "name": "reviewer_employment_status",
+        "type": "VARCHAR(512)",
+        "description": "Employment status of the reviewer"
+      },
+      {
+        "name": "reviewer_job_ending_year",
+        "type": "NUMBER(38,0)",
+        "description": "Year employment ended, if former employee"
+      },
+      {
+        "name": "reviewer_length_of_employment",
+        "type": "NUMBER(38,0)",
+        "description": "Length of employment reported by reviewer"
+      },
+      {
+        "name": "rating_overall",
+        "type": "NUMBER(38,0)",
+        "description": "Overall star rating"
+      },
+      {
+        "name": "rating_business_outlook",
+        "type": "VARCHAR(512)",
+        "description": "Business outlook categorical rating"
+      },
+      {
+        "name": "rating_career_opportunities",
+        "type": "FLOAT",
+        "description": "Career opportunities rating"
+      },
+      {
+        "name": "rating_ceo",
+        "type": "VARCHAR(512)",
+        "description": "CEO approval categorical rating"
+      },
+      {
+        "name": "rating_compensation_and_benefits",
+        "type": "FLOAT",
+        "description": "Compensation & benefits rating"
+      },
+      {
+        "name": "rating_culture_and_values",
+        "type": "NUMBER(38,0)",
+        "description": "Culture & values rating"
+      },
+      {
+        "name": "rating_diversity_and_inclusion",
+        "type": "NUMBER(38,0)",
+        "description": "Diversity & inclusion rating"
+      },
+      {
+        "name": "rating_recommend_to_friend",
+        "type": "VARCHAR(512)",
+        "description": "Recommend-to-friend categorical flag"
+      },
+      {
+        "name": "rating_senior_leadership",
+        "type": "FLOAT",
+        "description": "Senior leadership rating"
+      },
+      {
+        "name": "rating_work_life_balance",
+        "type": "FLOAT",
+        "description": "Work\u2013life balance rating"
+      },
+      {
+        "name": "review_summary",
+        "type": "VARCHAR(16777216)",
+        "description": "Review summary / headline text"
+      },
+      {
+        "name": "review_advice",
+        "type": "VARCHAR(16777216)",
+        "description": "Advice to management text"
+      },
+      {
+        "name": "review_pros",
+        "type": "VARCHAR(16777216)",
+        "description": "Pros text"
+      },
+      {
+        "name": "review_cons",
+        "type": "VARCHAR(16777216)",
+        "description": "Cons text"
+      },
+      {
+        "name": "review_count_helpful",
+        "type": "NUMBER(38,0)",
+        "description": "Helpful vote count"
+      },
+      {
+        "name": "review_count_not_helpful",
+        "type": "NUMBER(38,0)",
+        "description": "Not-helpful vote count"
+      },
+      {
+        "name": "region",
+        "type": "VARCHAR(512)",
+        "description": "Mapped region"
+      },
+      {
+        "name": "country",
+        "type": "VARCHAR(512)",
+        "description": "Mapped country"
+      },
+      {
+        "name": "state",
+        "type": "VARCHAR(512)",
+        "description": "Mapped state"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Mapped metro area"
+      },
+      {
+        "name": "ultimate_parent_rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Ultimate parent company rcid"
+      },
+      {
+        "name": "ultimate_parent_company_name",
+        "type": "VARCHAR(512)",
+        "description": "Ultimate parent company name"
+      }
+    ]
+  },
+  {
+    "id": "sentiment_scores",
+    "index": 6,
+    "name": "Sentiment scores",
+    "path": "<YYYYMM>/sentiment_scores/sentiment_scores_*.parquet",
+    "grain": "One row per company",
+    "notes": "v1 columns end with _sentiment (e.g. compensation_sentiment) = unweighted avg(score). v2 columns start with sentiment_ (e.g. sentiment_compensation) = sum(score_v2 \u00d7 weight_v2) / sum(weight_v2). Prefer v2 for new work; do not treat overlapping theme pairs as one series.",
+    "fields": [
+      {
+        "name": "rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio company ID"
+      },
+      {
+        "name": "company",
+        "type": "VARCHAR",
+        "description": "Company name"
+      },
+      {
+        "name": "num_reviews",
+        "type": "NUMBER",
+        "description": "Number of Glassdoor reviews in the company aggregation"
+      },
+      {
+        "name": "management_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Management (unweighted avg)"
+      },
+      {
+        "name": "innovative_technology_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Innovative technology"
+      },
+      {
+        "name": "work_life_balance_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Work\u2013life balance"
+      },
+      {
+        "name": "mentorship_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Mentorship"
+      },
+      {
+        "name": "career_advancement_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Career advancement"
+      },
+      {
+        "name": "diversity_and_inclusion_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Diversity & inclusion"
+      },
+      {
+        "name": "coworkers_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Coworkers"
+      },
+      {
+        "name": "compensation_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Compensation"
+      },
+      {
+        "name": "culture_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Culture"
+      },
+      {
+        "name": "company_and_division_size_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Company / division size"
+      },
+      {
+        "name": "perks_and_benefits_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Perks & benefits"
+      },
+      {
+        "name": "onboarding_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Onboarding"
+      },
+      {
+        "name": "remote_work_sentiment",
+        "type": "FLOAT",
+        "description": "v1 \u2014 Remote work"
+      },
+      {
+        "name": "sentiment_benefits",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Benefits (confidence-weighted)"
+      },
+      {
+        "name": "sentiment_business_outlook",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Business outlook"
+      },
+      {
+        "name": "sentiment_career_growth",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Career growth"
+      },
+      {
+        "name": "sentiment_childcare",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Childcare"
+      },
+      {
+        "name": "sentiment_clients_and_customers",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Clients & customers"
+      },
+      {
+        "name": "sentiment_commission",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Commission"
+      },
+      {
+        "name": "sentiment_commitment",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Commitment"
+      },
+      {
+        "name": "sentiment_commute",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Commute"
+      },
+      {
+        "name": "sentiment_company_growth",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Company growth"
+      },
+      {
+        "name": "sentiment_compensation",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Compensation"
+      },
+      {
+        "name": "sentiment_compliance",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Compliance"
+      },
+      {
+        "name": "sentiment_coworkers",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Coworkers"
+      },
+      {
+        "name": "sentiment_culture",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Culture"
+      },
+      {
+        "name": "sentiment_diversity_and_inclusion",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Diversity & inclusion"
+      },
+      {
+        "name": "sentiment_education_assistance",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Education assistance"
+      },
+      {
+        "name": "sentiment_efficiency_and_bureaucracy",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Efficiency & bureaucracy"
+      },
+      {
+        "name": "sentiment_ethics",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Ethics"
+      },
+      {
+        "name": "sentiment_family_support",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Family support"
+      },
+      {
+        "name": "sentiment_harassment",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Harassment"
+      },
+      {
+        "name": "sentiment_healthcare",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Healthcare"
+      },
+      {
+        "name": "sentiment_honesty",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Honesty"
+      },
+      {
+        "name": "sentiment_independence",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Independence"
+      },
+      {
+        "name": "sentiment_integrity",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Integrity"
+      },
+      {
+        "name": "sentiment_internal_communication",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Internal communication"
+      },
+      {
+        "name": "sentiment_job_security",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Job security"
+      },
+      {
+        "name": "sentiment_leadership",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Leadership"
+      },
+      {
+        "name": "sentiment_mentorship",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Mentorship"
+      },
+      {
+        "name": "sentiment_mission_and_vision",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Mission & vision"
+      },
+      {
+        "name": "sentiment_office_politics",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Office politics"
+      },
+      {
+        "name": "sentiment_onboarding",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Onboarding"
+      },
+      {
+        "name": "sentiment_overtime",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Overtime"
+      },
+      {
+        "name": "sentiment_paid_time_off",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Paid time off"
+      },
+      {
+        "name": "sentiment_prestige",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Prestige"
+      },
+      {
+        "name": "sentiment_product_and_service_quality",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Product & service quality"
+      },
+      {
+        "name": "sentiment_promotion_opportunities",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Promotion opportunities"
+      },
+      {
+        "name": "sentiment_rating_overall",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Overall rating theme"
+      },
+      {
+        "name": "sentiment_remote_work",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Remote work"
+      },
+      {
+        "name": "sentiment_retirement_pension",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Retirement / pension"
+      },
+      {
+        "name": "sentiment_safety",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Safety"
+      },
+      {
+        "name": "sentiment_schedule_flexibility",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Schedule flexibility"
+      },
+      {
+        "name": "sentiment_technology",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Technology"
+      },
+      {
+        "name": "sentiment_training",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Training"
+      },
+      {
+        "name": "sentiment_transparency",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Transparency"
+      },
+      {
+        "name": "sentiment_wellness_programs",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Wellness programs"
+      },
+      {
+        "name": "sentiment_work_life_balance",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Work\u2013life balance"
+      },
+      {
+        "name": "sentiment_workplace_facilities",
+        "type": "FLOAT",
+        "description": "v2 \u2014 Workplace facilities"
+      }
+    ]
+  },
+  {
+    "id": "individual_certifications",
+    "index": 7,
+    "name": "Individual certifications",
+    "path": "<YYYYMM>/individual_certifications/individual_certifications_*.parquet",
+    "grain": "One row per certification listed on a LinkedIn profile for users employed at in-scope companies",
+    "notes": "Notes: Not date-filtered beyond the company-user scope",
+    "fields": [
+      {
+        "name": "user_id",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio user ID"
+      },
+      {
+        "name": "uri",
+        "type": "VARCHAR(1024)",
+        "description": "LinkedIn profile URI"
+      },
+      {
+        "name": "order_in_profile",
+        "type": "NUMBER(38,0)",
+        "description": "Display order of the certification on the profile"
+      },
+      {
+        "name": "cert_name",
+        "type": "VARCHAR(16777216)",
+        "description": "Certification name"
+      },
+      {
+        "name": "cert_url",
+        "type": "VARCHAR(16777216)",
+        "description": "URL associated with the certification"
+      },
+      {
+        "name": "cert_id",
+        "type": "VARCHAR(16777216)",
+        "description": "External certification ID, when present"
+      },
+      {
+        "name": "company",
+        "type": "VARCHAR(16777216)",
+        "description": "Issuing organization / company (raw)"
+      },
+      {
+        "name": "company_cleaned",
+        "type": "VARCHAR(16777216)",
+        "description": "Cleaned issuing company name"
+      },
+      {
+        "name": "company_url",
+        "type": "VARCHAR(1024)",
+        "description": "Issuing company URL"
+      },
+      {
+        "name": "startdate_str",
+        "type": "VARCHAR(512)",
+        "description": "Raw start date string from the profile"
+      },
+      {
+        "name": "startdate",
+        "type": "DATE",
+        "description": "Parsed certification start date"
+      },
+      {
+        "name": "enddate_str",
+        "type": "VARCHAR(512)",
+        "description": "Raw end / expiry date string"
+      },
+      {
+        "name": "enddate",
+        "type": "DATE",
+        "description": "Parsed certification end / expiry date"
+      },
+      {
+        "name": "description",
+        "type": "VARCHAR(16777216)",
+        "description": "Certification description text"
+      },
+      {
+        "name": "updated_dt",
+        "type": "TIMESTAMP_NTZ(9)",
+        "description": "Last update timestamp of the record"
+      }
+    ]
+  },
+  {
+    "id": "individual_courses",
+    "index": 8,
+    "name": "Individual courses",
+    "path": "<YYYYMM>/individual_courses/individual_courses_*.parquet",
+    "grain": "One row per course listed on a LinkedIn profile for users employed at in-scope companies",
+    "notes": "Notes: Not date-filtered beyond the company-user scope",
+    "fields": [
+      {
+        "name": "user_id",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio user ID"
+      },
+      {
+        "name": "uri",
+        "type": "VARCHAR(1024)",
+        "description": "LinkedIn profile URI"
+      },
+      {
+        "name": "order_in_profile",
+        "type": "NUMBER(38,0)",
+        "description": "Display order of the course on the profile"
+      },
+      {
+        "name": "course_name",
+        "type": "VARCHAR(16777216)",
+        "description": "Course name"
+      },
+      {
+        "name": "course_number",
+        "type": "VARCHAR(16777216)",
+        "description": "Course number / code, when present"
+      },
+      {
+        "name": "course_association",
+        "type": "VARCHAR(16777216)",
+        "description": "Associated school or organization"
+      },
+      {
+        "name": "updated_dt",
+        "type": "TIMESTAMP_NTZ(9)",
+        "description": "Last update timestamp of the record"
+      }
+    ]
+  },
+  {
+    "id": "role_taxonomy_soc_crosswalk",
+    "index": 9,
+    "name": "Role taxonomy \u2194 SOC crosswalk",
+    "path": "first_phase_deliveries/<YYYYMM>/",
+    "grain": "One row per `role_v3_id`, joining the Revelio role taxonomy (taxonomy_id = 0) to the SOC / O\\*NET custom taxonomy (taxonomy_id = 61, job_taxonomy_version = 3.2.0)",
+    "notes": "Cadence: Annual. Revelio-side role columns are prefixed `revelio_`. SOC-side columns retain `role_k*` names plus `*_common_titles`.",
+    "fields": [
+      {
+        "name": "role_v3_id",
+        "type": "NUMBER",
+        "description": "Shared role embedding ID used to join taxonomies"
+      },
+      {
+        "name": "revelio_role_k10",
+        "type": "VARCHAR",
+        "description": "Revelio role cluster at k10"
+      },
+      {
+        "name": "revelio_role_k50",
+        "type": "VARCHAR",
+        "description": "Revelio role cluster at k50"
+      },
+      {
+        "name": "revelio_role_k150",
+        "type": "VARCHAR",
+        "description": "Revelio role cluster at k150"
+      },
+      {
+        "name": "revelio_role_k500",
+        "type": "VARCHAR",
+        "description": "Revelio role cluster at k500"
+      },
+      {
+        "name": "revelio_role_k1000",
+        "type": "VARCHAR",
+        "description": "Revelio role cluster at k1000"
+      },
+      {
+        "name": "revelio_role_k1500",
+        "type": "VARCHAR",
+        "description": "Revelio role cluster at k1500"
+      },
+      {
+        "name": "revelio_role_k5000",
+        "type": "VARCHAR",
+        "description": "Revelio role cluster at k5000"
+      },
+      {
+        "name": "revelio_role_k10000",
+        "type": "VARCHAR",
+        "description": "Revelio role cluster at k10000"
+      },
+      {
+        "name": "revelio_role_k17000",
+        "type": "VARCHAR",
+        "description": "Revelio role cluster at k17000 (finest / mapped role)"
+      },
+      {
+        "name": "taxonomy_name",
+        "type": "VARCHAR",
+        "description": "Name of the SOC / O\\*NET taxonomy (id 61)"
+      },
+      {
+        "name": "role_k10000",
+        "type": "VARCHAR",
+        "description": "SOC taxonomy role at k10000"
+      },
+      {
+        "name": "role_k10000_common_titles",
+        "type": "VARCHAR",
+        "description": "Common titles for SOC k10000"
+      },
+      {
+        "name": "role_k5000",
+        "type": "VARCHAR",
+        "description": "SOC taxonomy role at k5000"
+      },
+      {
+        "name": "role_k5000_common_titles",
+        "type": "VARCHAR",
+        "description": "Common titles for SOC k5000"
+      },
+      {
+        "name": "role_k1500",
+        "type": "VARCHAR",
+        "description": "SOC taxonomy role at k1500"
+      },
+      {
+        "name": "role_k1500_common_titles",
+        "type": "VARCHAR",
+        "description": "Common titles for SOC k1500"
+      },
+      {
+        "name": "role_k1000",
+        "type": "VARCHAR",
+        "description": "SOC taxonomy role at k1000"
+      },
+      {
+        "name": "role_k1000_common_titles",
+        "type": "VARCHAR",
+        "description": "Common titles for SOC k1000"
+      },
+      {
+        "name": "role_k500",
+        "type": "VARCHAR",
+        "description": "SOC taxonomy role at k500"
+      },
+      {
+        "name": "role_k500_common_titles",
+        "type": "VARCHAR",
+        "description": "Common titles for SOC k500"
+      },
+      {
+        "name": "role_k150",
+        "type": "VARCHAR",
+        "description": "SOC taxonomy role at k150"
+      },
+      {
+        "name": "role_k150_common_titles",
+        "type": "VARCHAR",
+        "description": "Common titles for SOC k150"
+      },
+      {
+        "name": "role_k50",
+        "type": "VARCHAR",
+        "description": "SOC taxonomy role at k50"
+      },
+      {
+        "name": "role_k50_common_titles",
+        "type": "VARCHAR",
+        "description": "Common titles for SOC k50"
+      },
+      {
+        "name": "role_k10",
+        "type": "VARCHAR",
+        "description": "SOC taxonomy role at k10"
+      },
+      {
+        "name": "role_k10_common_titles",
+        "type": "VARCHAR",
+        "description": "Common titles for SOC k10"
+      }
+    ]
+  },
+  {
+    "id": "company_directory",
+    "index": 10,
+    "name": "Company directory",
+    "path": "first_phase_deliveries/<YYYYMM>/",
+    "grain": "Flat company reference snapshot from `full_company_ref_monthly`",
+    "notes": "Cadence: Quarterly. Distinct from the hierarchical company reference delivery (#0). Includes location v4 HQ fields; column names follow the monthly full company ref export (e.g. `exchange`, `naics`).",
+    "fields": [
+      {
+        "name": "rcid",
+        "type": "NUMBER",
+        "description": "Revelio company ID"
+      },
+      {
+        "name": "company",
+        "type": "VARCHAR",
+        "description": "Primary company name"
+      },
+      {
+        "name": "factset_entity_id",
+        "type": "VARCHAR",
+        "description": "FactSet entity identifier"
+      },
+      {
+        "name": "year_founded",
+        "type": "VARCHAR",
+        "description": "Year founded"
+      },
+      {
+        "name": "location_v4_region",
+        "type": "VARCHAR",
+        "description": "HQ region (location v4)"
+      },
+      {
+        "name": "location_v4_country",
+        "type": "VARCHAR",
+        "description": "HQ country (location v4)"
+      },
+      {
+        "name": "location_v4_metro_area",
+        "type": "VARCHAR",
+        "description": "HQ metro area (location v4)"
+      },
+      {
+        "name": "location_v4_city_core",
+        "type": "VARCHAR",
+        "description": "HQ city core (location v4)"
+      },
+      {
+        "name": "location_v4_postal_code",
+        "type": "VARCHAR",
+        "description": "HQ postal code (location v4)"
+      },
+      {
+        "name": "ticker",
+        "type": "VARCHAR",
+        "description": "Equity ticker"
+      },
+      {
+        "name": "exchange",
+        "type": "VARCHAR",
+        "description": "Exchange"
+      },
+      {
+        "name": "sedol",
+        "type": "VARCHAR",
+        "description": "SEDOL identifier"
+      },
+      {
+        "name": "isin",
+        "type": "VARCHAR",
+        "description": "ISIN identifier"
+      },
+      {
+        "name": "cusip",
+        "type": "VARCHAR",
+        "description": "CUSIP identifier"
+      },
+      {
+        "name": "naics",
+        "type": "VARCHAR",
+        "description": "NAICS code"
+      },
+      {
+        "name": "cik",
+        "type": "VARCHAR",
+        "description": "SEC CIK"
+      },
+      {
+        "name": "lei",
+        "type": "VARCHAR",
+        "description": "Legal Entity Identifier"
+      },
+      {
+        "name": "linkedin_url",
+        "type": "VARCHAR",
+        "description": "LinkedIn company URL"
+      },
+      {
+        "name": "child_rcid",
+        "type": "NUMBER",
+        "description": "Child / subsidiary rcid"
+      },
+      {
+        "name": "child_company",
+        "type": "VARCHAR",
+        "description": "Child company name"
+      },
+      {
+        "name": "child_linkedin_url",
+        "type": "VARCHAR",
+        "description": "Child LinkedIn URL"
+      },
+      {
+        "name": "ultimate_parent_rcid",
+        "type": "NUMBER",
+        "description": "Ultimate parent rcid"
+      },
+      {
+        "name": "ultimate_parent_rcid_name",
+        "type": "VARCHAR",
+        "description": "Ultimate parent company name"
+      }
+    ]
+  },
+  {
+    "id": "skills_taxonomy",
+    "index": 11,
+    "name": "Skills taxonomy",
+    "path": "first_phase_deliveries/<YYYYMM>/",
+    "grain": "One row per skill node in the default skill taxonomy (`taxonomy_id = 0`) from `custom_skills_taxonomy_v3_overall_latest`",
+    "notes": "Cadence: Annual. Delivered as `SELECT DISTINCT *` for `taxonomy_id = 0`. Typical hierarchy columns are listed below; exact schema follows the current global skill taxonomy table.",
+    "fields": [
+      {
+        "name": "taxonomy_id",
+        "type": "NUMBER",
+        "description": "Skill taxonomy ID (0 = default / overall)"
+      },
+      {
+        "name": "skill_v3_id",
+        "type": "NUMBER",
+        "description": "Skill embedding / node ID"
+      },
+      {
+        "name": "skill_taxonomy_version",
+        "type": "VARCHAR",
+        "description": "Skill taxonomy version string"
+      },
+      {
+        "name": "skill_k15",
+        "type": "VARCHAR",
+        "description": "Coarse skill cluster (k15)"
+      },
+      {
+        "name": "skill_k50",
+        "type": "VARCHAR",
+        "description": "Skill cluster (k50)"
+      },
+      {
+        "name": "skill_k150",
+        "type": "VARCHAR",
+        "description": "Skill cluster (k150)"
+      },
+      {
+        "name": "skill_k500",
+        "type": "VARCHAR",
+        "description": "Skill cluster (k500)"
+      },
+      {
+        "name": "skill_k1500",
+        "type": "VARCHAR",
+        "description": "Skill cluster (k1500)"
+      },
+      {
+        "name": "skill_k5000",
+        "type": "VARCHAR",
+        "description": "Skill cluster (k5000)"
+      },
+      {
+        "name": "skill_k15000",
+        "type": "VARCHAR",
+        "description": "Skill cluster (k15000)"
+      },
+      {
+        "name": "skill_k35000",
+        "type": "VARCHAR",
+        "description": "Finest / mapped skill label (k35000)"
+      }
+    ]
+  },
+  {
+    "id": "modeled_wage_file",
+    "index": 12,
+    "name": "Modeled wage file",
+    "path": "<YYYYMM>/occupation_geography_wages/",
+    "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation \u00d7 geography (county FIPS preferred, else CBSA) \u00d7 period",
+    "notes": "Cadence: Monthly. Built from postings with non-null modeled salary and employer; geography requires a county or CBSA match. Active vs new flags expand postings across months between post and remove dates (6-month implied close when remove is null and 6 months after post is in the past).",
+    "fields": [
+      {
+        "name": "occupation_code",
+        "type": "VARCHAR",
+        "description": "Occupation code from posting `onet_code`"
+      },
+      {
+        "name": "geography_grain",
+        "type": "VARCHAR",
+        "description": "`county` if county FIPS matched; otherwise `cbsa`"
+      },
+      {
+        "name": "geography_code",
+        "type": "VARCHAR",
+        "description": "5-digit county FIPS (zero-padded) or CBSA code"
+      },
+      {
+        "name": "period",
+        "type": "VARCHAR",
+        "description": "Month (`YYYY-MM`)"
+      },
+      {
+        "name": "salary_p10",
+        "type": "FLOAT",
+        "description": "10th percentile of active posting base salaries"
+      },
+      {
+        "name": "salary_p25",
+        "type": "FLOAT",
+        "description": "25th percentile of active posting base salaries"
+      },
+      {
+        "name": "salary_p50",
+        "type": "FLOAT",
+        "description": "Median active posting base salary"
+      },
+      {
+        "name": "salary_p75",
+        "type": "FLOAT",
+        "description": "75th percentile of active posting base salaries"
+      },
+      {
+        "name": "salary_p90",
+        "type": "FLOAT",
+        "description": "90th percentile of active posting base salaries"
+      },
+      {
+        "name": "total_comp_p10",
+        "type": "FLOAT",
+        "description": "10th percentile of active posting total compensation"
+      },
+      {
+        "name": "total_comp_p25",
+        "type": "FLOAT",
+        "description": "25th percentile of active posting total compensation"
+      },
+      {
+        "name": "total_comp_p50",
+        "type": "FLOAT",
+        "description": "Median active posting total compensation"
+      },
+      {
+        "name": "total_comp_p75",
+        "type": "FLOAT",
+        "description": "75th percentile of active posting total compensation"
+      },
+      {
+        "name": "total_comp_p90",
+        "type": "FLOAT",
+        "description": "90th percentile of active posting total compensation"
+      },
+      {
+        "name": "entry_level_wage",
+        "type": "FLOAT",
+        "description": "Median active base salary where seniority \u2264 1"
+      },
+      {
+        "name": "entry_level_total_comp",
+        "type": "FLOAT",
+        "description": "Median active total compensation where seniority \u2264 1"
+      },
+      {
+        "name": "active_posting_count",
+        "type": "NUMBER",
+        "description": "Count of active postings in the slice"
+      },
+      {
+        "name": "new_posting_count",
+        "type": "NUMBER",
+        "description": "Count of newly posted jobs in the period"
+      },
+      {
+        "name": "active_expected_hires",
+        "type": "FLOAT",
+        "description": "Sum of expected hires on active postings"
+      },
+      {
+        "name": "new_expected_hires",
+        "type": "FLOAT",
+        "description": "Sum of expected hires on new postings"
+      },
+      {
+        "name": "active_employer_count",
+        "type": "NUMBER",
+        "description": "Distinct ultimate-parent employers among active postings"
+      },
+      {
+        "name": "new_employer_count",
+        "type": "NUMBER",
+        "description": "Distinct ultimate-parent employers among new postings"
+      }
+    ]
+  },
+  {
+    "id": "unified_postings_weekly",
+    "index": 13,
+    "name": "Unified postings (weekly)",
+    "path": "<YYYYMMDD>/unified_postings/unified_postings_*.parquet",
+    "grain": "One row per COSMOS unified job posting for US-headquartered in-scope companies",
+    "notes": "Start: `post_date >= 2021-05-01` Feed: Weekly (`perceiviq_weekly.py`), delivered Fridays under the daily batchtime folder Notes: Source is `POSTINGS_UNIFIED_NEW` (`output_new`). Location fields use location v3 (`metro_area` from `msa_v3`). Skills for these postings are in the companion weekly file (#14).",
+    "fields": [
+      {
+        "name": "job_id",
+        "type": "NUMBER(38,0)",
+        "description": "Unique job posting identifier"
+      },
+      {
+        "name": "rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Revelio company ID for the posting employer"
+      },
+      {
+        "name": "company_name",
+        "type": "VARCHAR(16777216)",
+        "description": "Cleaned / mapped company name"
+      },
+      {
+        "name": "company_raw",
+        "type": "VARCHAR(16777216)",
+        "description": "Raw employer name from the posting"
+      },
+      {
+        "name": "naics",
+        "type": "VARCHAR(512)",
+        "description": "Company NAICS code, when available"
+      },
+      {
+        "name": "predicted_naics",
+        "type": "VARCHAR(512)",
+        "description": "Model-predicted NAICS for the rcid"
+      },
+      {
+        "name": "title_raw",
+        "type": "VARCHAR(16777216)",
+        "description": "Raw job title"
+      },
+      {
+        "name": "title_translated",
+        "type": "VARCHAR(16777216)",
+        "description": "Translated job title"
+      },
+      {
+        "name": "title_normalized",
+        "type": "VARCHAR(16777216)",
+        "description": "Normalized job title"
+      },
+      {
+        "name": "role_v3_id",
+        "type": "NUMBER(38,0)",
+        "description": "Role embedding ID (taxonomy v3)"
+      },
+      {
+        "name": "role_k17000",
+        "type": "VARCHAR(512)",
+        "description": "Finest role cluster (k17000)"
+      },
+      {
+        "name": "role_k1500",
+        "type": "VARCHAR(512)",
+        "description": "Role cluster at k1500"
+      },
+      {
+        "name": "role_k150",
+        "type": "VARCHAR(512)",
+        "description": "Role cluster at k150"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR(256)",
+        "description": "O\\*NET / occupation code"
+      },
+      {
+        "name": "esco_code",
+        "type": "VARCHAR(16777216)",
+        "description": "ESCO occupation code mapped via role_v3_id"
+      },
+      {
+        "name": "location_raw",
+        "type": "VARCHAR(16777216)",
+        "description": "Raw location string"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Metro / MSA (location v3)"
+      },
+      {
+        "name": "state",
+        "type": "VARCHAR(512)",
+        "description": "State / province (location v3)"
+      },
+      {
+        "name": "country",
+        "type": "VARCHAR(512)",
+        "description": "Country (location v3)"
+      },
+      {
+        "name": "region",
+        "type": "VARCHAR(512)",
+        "description": "Region (location v3)"
+      },
+      {
+        "name": "city",
+        "type": "VARCHAR(512)",
+        "description": "City (location v3)"
+      },
+      {
+        "name": "county",
+        "type": "VARCHAR(512)",
+        "description": "County (location v3)"
+      },
+      {
+        "name": "latitude",
+        "type": "FLOAT",
+        "description": "Latitude"
+      },
+      {
+        "name": "longitude",
+        "type": "FLOAT",
+        "description": "Longitude"
+      },
+      {
+        "name": "seniority",
+        "type": "NUMBER(38,0)",
+        "description": "Seniority (v2.1 model)"
+      },
+      {
+        "name": "post_date",
+        "type": "DATE",
+        "description": "Date the posting was first observed"
+      },
+      {
+        "name": "remove_date",
+        "type": "DATE",
+        "description": "Date the posting was removed / closed, when known"
+      },
+      {
+        "name": "salary_min_raw",
+        "type": "FLOAT",
+        "description": "Raw minimum salary from the posting"
+      },
+      {
+        "name": "salary_max_raw",
+        "type": "FLOAT",
+        "description": "Raw maximum salary from the posting"
+      },
+      {
+        "name": "salary_raw",
+        "type": "FLOAT",
+        "description": "Raw salary from the posting"
+      },
+      {
+        "name": "salary_raw_currency",
+        "type": "VARCHAR(16777216)",
+        "description": "Currency of the raw salary fields"
+      },
+      {
+        "name": "salary_min",
+        "type": "FLOAT",
+        "description": "Standardized min salary when `salary_v1` is present"
+      },
+      {
+        "name": "salary_max",
+        "type": "FLOAT",
+        "description": "Standardized max salary when `salary_v1` is present"
+      },
+      {
+        "name": "salary",
+        "type": "FLOAT",
+        "description": "Standardized salary (`salary_v1`)"
+      },
+      {
+        "name": "inferred_base_salary",
+        "type": "FLOAT",
+        "description": "Modeled base salary (`salary_v2_1_all_modelled`)"
+      },
+      {
+        "name": "inferred_total_salary",
+        "type": "FLOAT",
+        "description": "Modeled total compensation (`total_comp_v2_1`)"
+      },
+      {
+        "name": "description",
+        "type": "VARCHAR(16777216)",
+        "description": "Full job description text"
+      },
+      {
+        "name": "years_of_experience",
+        "type": "VARCHAR(512)",
+        "description": "Normalized years of experience requirement"
+      },
+      {
+        "name": "rics_k400",
+        "type": "VARCHAR(512)",
+        "description": "Industry cluster (RICS k400)"
+      },
+      {
+        "name": "rics_k200",
+        "type": "VARCHAR(512)",
+        "description": "Industry cluster (RICS k200)"
+      },
+      {
+        "name": "rics_k50",
+        "type": "VARCHAR(512)",
+        "description": "Industry cluster (RICS k50)"
+      },
+      {
+        "name": "ultimate_parent_rcid",
+        "type": "NUMBER(38,0)",
+        "description": "Ultimate parent company rcid"
+      },
+      {
+        "name": "ultimate_parent_company_name",
+        "type": "VARCHAR(16777216)",
+        "description": "Ultimate parent company name"
+      },
+      {
+        "name": "posting_url",
+        "type": "VARCHAR(16777216)",
+        "description": "URL of the job posting"
+      },
+      {
+        "name": "expected_hires",
+        "type": "FLOAT",
+        "description": "Expected hires inferred for the posting"
+      },
+      {
+        "name": "remote_type",
+        "type": "VARCHAR(256)",
+        "description": "Remote / hybrid / onsite classification"
+      },
+      {
+        "name": "education_required",
+        "type": "VARCHAR(512)",
+        "description": "Required degree / education level"
+      },
+      {
+        "name": "employment_type",
+        "type": "VARCHAR(16777216)",
+        "description": "Predicted employment type"
+      },
+      {
+        "name": "contract_type",
+        "type": "VARCHAR(16777216)",
+        "description": "`Contract` if Contingent/Internship, else `Permanent`"
+      },
+      {
+        "name": "source_company_sites",
+        "type": "BOOLEAN",
+        "description": "Posted on company career site (Revelio source)"
+      },
+      {
+        "name": "source_linkedin",
+        "type": "BOOLEAN",
+        "description": "Observed on LinkedIn"
+      },
+      {
+        "name": "source_indeed",
+        "type": "BOOLEAN",
+        "description": "Observed on Indeed"
+      },
+      {
+        "name": "source_zhaopin",
+        "type": "BOOLEAN",
+        "description": "Observed on Zhaopin"
+      },
+      {
+        "name": "source_51job",
+        "type": "BOOLEAN",
+        "description": "Observed on 51job"
+      },
+      {
+        "name": "source_liepin",
+        "type": "BOOLEAN",
+        "description": "Observed on Liepin"
+      },
+      {
+        "name": "source_other_aggregators",
+        "type": "BOOLEAN",
+        "description": "Observed on other aggregators"
+      },
+      {
+        "name": "source_regional_aggregators",
+        "type": "BOOLEAN",
+        "description": "Observed on regional aggregators"
+      },
+      {
+        "name": "source_staffingfirms",
+        "type": "BOOLEAN",
+        "description": "Observed via staffing firms"
+      },
+      {
+        "name": "last_updated_date",
+        "type": "DATE",
+        "description": "Last content update date"
+      },
+      {
+        "name": "last_scraped_date",
+        "type": "TIMESTAMP_NTZ(9)",
+        "description": "Last scrape / ingest timestamp"
+      }
+    ]
+  },
+  {
+    "id": "unified_posting_skills_weekly",
+    "index": 14,
+    "name": "Unified posting skills (weekly)",
+    "path": "<YYYYMMDD>/unified_postings_skills/unified_postings_skills_*.parquet",
+    "grain": "One row per skill extracted from a unified posting that is in the weekly postings delivery",
+    "notes": "Feed: Weekly (`perceiviq_weekly.py`), delivered Fridays Notes: Skills come from `postings_unique_unified_skills_v3` with skill taxonomy v3 labels and skill-tag flags. Restricted to `job_id`s present in weekly unified postings.",
+    "fields": [
+      {
+        "name": "job_id",
+        "type": "NUMBER(38,0)",
+        "description": "Job posting ID (joins to weekly unified postings)"
+      },
+      {
+        "name": "skill_raw",
+        "type": "VARCHAR(16777216)",
+        "description": "Raw extracted skill string"
+      },
+      {
+        "name": "skill_k35000",
+        "type": "VARCHAR(512)",
+        "description": "Finest skill taxonomy label (k35000)"
+      },
+      {
+        "name": "skill_k15000",
+        "type": "VARCHAR(512)",
+        "description": "Skill cluster at k15000"
+      },
+      {
+        "name": "skill_k1500",
+        "type": "VARCHAR(512)",
+        "description": "Skill cluster at k1500"
+      },
+      {
+        "name": "skill_k500",
+        "type": "VARCHAR(512)",
+        "description": "Skill cluster at k500"
+      },
+      {
+        "name": "is_common",
+        "type": "BOOLEAN",
+        "description": "Tag: common / general skill"
+      },
+      {
+        "name": "is_specialized",
+        "type": "BOOLEAN",
+        "description": "Tag: specialized skill"
+      },
+      {
+        "name": "is_language",
+        "type": "BOOLEAN",
+        "description": "Tag: language skill"
+      },
+      {
+        "name": "is_software",
+        "type": "BOOLEAN",
+        "description": "Tag: software skill"
+      },
+      {
+        "name": "is_programming_language",
+        "type": "BOOLEAN",
+        "description": "Tag: programming language"
+      },
+      {
+        "name": "is_ai",
+        "type": "BOOLEAN",
+        "description": "Tag: AI-related skill"
+      },
+      {
+        "name": "is_leadership",
+        "type": "BOOLEAN",
+        "description": "Tag: leadership skill"
+      },
+      {
+        "name": "is_certification",
+        "type": "BOOLEAN",
+        "description": "Tag: certification-related"
+      },
+      {
+        "name": "is_personal_attribute",
+        "type": "BOOLEAN",
+        "description": "Tag: personal attribute"
+      },
+      {
+        "name": "last_updated_date",
+        "type": "DATE",
+        "description": "Last update date from the parent posting"
+      },
+      {
+        "name": "last_scraped_date",
+        "type": "TIMESTAMP_NTZ(9)",
+        "description": "Last scrape timestamp from the parent posting"
+      }
+    ]
+  }
+];
+
+const sel = document.getElementById('dataset');
+const filter = document.getElementById('filter');
+const tbody = document.getElementById('tbody');
+const overview = document.getElementById('overview');
+const cadenceFor = (d) => {
+  if (d.index <= 8 || d.index === 12) return 'Monthly';
+  if (d.index === 9 || d.index === 11) return 'Annual';
+  if (d.index === 10) return 'Quarterly';
+  return 'Weekly (Friday)';
+};
+
+DATASETS.forEach((d) => {
+  const opt = document.createElement('option');
+  opt.value = d.id;
+  opt.textContent = `${d.index}. ${d.name} (${d.fields.length})`;
+  sel.appendChild(opt);
+
+  const tr = document.createElement('tr');
+  const displayPath = d.path.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  tr.innerHTML = `<td>${d.index}</td><td><button type="button" data-id="${d.id}">${d.name}</button></td><td>${cadenceFor(d)}</td><td><code>${displayPath}</code></td><td>${d.fields.length}</td>`;
+  overview.appendChild(tr);
+});
+
+document.getElementById('stat-datasets').textContent = DATASETS.length;
+document.getElementById('stat-fields').textContent = DATASETS.reduce((n, d) => n + d.fields.length, 0);
+
+overview.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-id]');
+  if (!btn) return;
+  sel.value = btn.dataset.id;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+function current() {
+  return DATASETS.find(d => d.id === sel.value) || DATASETS[0];
+}
+
+function render() {
+  const d = current();
+  const q = filter.value.trim().toLowerCase();
+  document.getElementById('title').textContent = d.name;
+  document.getElementById('path').textContent = d.path || '—';
+  document.getElementById('grain').textContent = d.grain || '';
+  const notesEl = document.getElementById('notes');
+  if (d.notes) {
+    notesEl.hidden = false;
+    notesEl.textContent = 'Note: ' + d.notes.replace(/\*\*/g, '');
+  } else {
+    notesEl.hidden = true;
+  }
+
+  const rows = d.fields.filter(f => {
+    if (!q) return true;
+    return (f.name + ' ' + f.type + ' ' + f.description).toLowerCase().includes(q);
+  });
+
+  document.getElementById('count').textContent = rows.length + (q ? ` / ${d.fields.length}` : '') + ' fields';
+  document.getElementById('stat-view').textContent = rows.length;
+
+  tbody.innerHTML = rows.map(f => `
+    <tr>
+      <td class="field">${f.name}</td>
+      <td class="type">${f.type}</td>
+      <td>${f.description.replace(/\*\*/g, '')}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="3">No fields match “${q}”.</td></tr>`;
+}
+
+sel.addEventListener('change', render);
+filter.addEventListener('input', render);
+render();
+</script>
+</body>
+</html>
