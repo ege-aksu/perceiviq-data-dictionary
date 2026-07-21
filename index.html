@@ -1815,9 +1815,9 @@ const DATASETS = [
     "id": "wages_raw",
     "index": 13,
     "name": "Raw wages file",
-    "path": "first_phase_deliveries/<YYYYMM>/wages_raw/",
+    "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Posting date × metro_area × NAICS × O*NET raw salary figures",
-    "notes": "Companion to the modeled occupation_geography_wages file. Uses raw posted salaries (not Revelio modeled wages). Exact measure columns follow the delivered extract; grain dimensions below.",
+    "notes": "Delivered under first_phase_deliveries/{batchtime}/ as wages_raw. Companion to the modeled occupation_geography_wages file. Uses raw posted salaries (not Revelio modeled wages). Exact measure columns follow the delivered extract; grain dimensions below.",
     "fields": [
       {
         "name": "post_date",
