@@ -166,11 +166,10 @@
       Interactive field catalog for monthly and weekly SFTP deliverables plus flat reference files.
       Parquet / Snappy. Scope: US-headquartered companies from Revelio shared public &amp; private lists;
       dynamics, postings, and sentiment time series start May 2021 where applicable.
-      Sentiment scores: v1 = <code>{theme}_sentiment</code> (unweighted avg); v2 = <code>sentiment_{theme}</code> (confidence-weighted).
+      Sentiment scores are monthly cumulative <strong>v2</strong> NLP themes only (<code>sentiment_{theme}</code>).
       Paths are relative to the PerceivIQ SFTP root: <code>&lt;YYYYMM&gt;</code> identifies a monthly batch and
       <code>&lt;YYYYMMDD&gt;</code> identifies a Friday weekly delivery.
-      June 2026 examples: <code>first_phase_deliveries/202606/</code> and
-      <code>202606/occupation_geography_wages/</code>.
+      Company reference and individual reviews SFTP unloads are currently paused.
     </p>
 
     <div class="stats">
@@ -228,7 +227,7 @@ const DATASETS = [
     "name": "Company reference",
     "path": "<YYYYMM>/company_ref/company_ref_*.parquet",
     "grain": "Company identifiers and ownership hierarchy",
-    "notes": null,
+    "notes": "SFTP unload currently paused in perceiviq.py (transform retained).",
     "fields": [
       {
         "name": "rcid",
@@ -332,8 +331,8 @@ const DATASETS = [
     "index": 1,
     "name": "Workforce dynamics",
     "path": "<YYYYMM>/workforce_dynamics/workforce_dynamics_*.parquet",
-    "grain": "Monthly slices by company, seniority, region, country, state, metro area, and job category (`role_k10`)",
-    "notes": "Start: May 2021",
+    "grain": "Monthly company × seniority × region × country × state × metro_area × role_k10 × role_k50 × role_k150 × onet_code (from May 2021)",
+    "notes": "Rust WFD. role_k10 delivered as job_category. onet_code from O*NET taxonomy id 61. No county on WFD.",
     "fields": [
       {
         "name": "rcid",
@@ -348,37 +347,52 @@ const DATASETS = [
       {
         "name": "seniority",
         "type": "NUMBER(38,0)",
-        "description": "Seniority level"
+        "description": "Seniority level (v2.1)"
       },
       {
         "name": "region",
         "type": "VARCHAR(512)",
-        "description": "Geographic region"
+        "description": "Geographic region (location v3)"
       },
       {
         "name": "country",
         "type": "VARCHAR(512)",
-        "description": "Country"
+        "description": "Country (location v3)"
       },
       {
         "name": "state",
         "type": "VARCHAR(512)",
-        "description": "State / province"
+        "description": "State / province (location v3)"
       },
       {
         "name": "metro_area",
         "type": "VARCHAR(512)",
-        "description": "Metro / metropolitan statistical area"
+        "description": "Metro / MSA (location v3). Not county"
       },
       {
         "name": "job_category",
         "type": "VARCHAR(512)",
-        "description": "Job taxonomy role cluster (role_k10), delivered as `job_category`"
+        "description": "Job taxonomy role_k10 (v3), delivered as job_category"
+      },
+      {
+        "name": "role_k50",
+        "type": "VARCHAR(512)",
+        "description": "Medium-grain job role cluster (taxonomy v3)"
+      },
+      {
+        "name": "role_k150",
+        "type": "VARCHAR(512)",
+        "description": "Finer job role cluster (taxonomy v3)"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR(512)",
+        "description": "O*NET / SOC code from taxonomy id 61 (empty when unmapped)"
       },
       {
         "name": "month",
         "type": "VARCHAR(7)",
-        "description": "Observation month (`YYYY-MM`)"
+        "description": "Observation month (YYYY-MM)"
       },
       {
         "name": "count",
@@ -432,8 +446,8 @@ const DATASETS = [
     "index": 2,
     "name": "Skill dynamics",
     "path": "<YYYYMM>/skill_dynamics/skill_dynamics_*.parquet",
-    "grain": "Monthly slices by company, seniority, region, role, and skill taxonomy hierarchy",
-    "notes": "Start: May 2021",
+    "grain": "Monthly company × seniority × region × country × state × metro_area × county × role_k10 × onet_code × skill hierarchy (from May 2021)",
+    "notes": "Skill taxonomy v3.0.7 (skill_k50 pipeline grain; skill_k15 / skill_k150 appended). county from county_v3; onet_code via custom step. No finer roles on skill.",
     "fields": [
       {
         "name": "rcid",
@@ -448,37 +462,62 @@ const DATASETS = [
       {
         "name": "seniority",
         "type": "NUMBER(38,0)",
-        "description": "Seniority level"
+        "description": "Seniority level (v2.1)"
       },
       {
         "name": "region",
         "type": "VARCHAR(512)",
-        "description": "Geographic region"
+        "description": "Geographic region (location v3)"
+      },
+      {
+        "name": "country",
+        "type": "VARCHAR(512)",
+        "description": "Country (location v3)"
+      },
+      {
+        "name": "state",
+        "type": "VARCHAR(512)",
+        "description": "State / province (location v3)"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Metro / MSA (location v3)"
+      },
+      {
+        "name": "county",
+        "type": "VARCHAR(512)",
+        "description": "County (location v3 / county_v3), via custom step"
       },
       {
         "name": "role_k10",
         "type": "VARCHAR(512)",
-        "description": "Job taxonomy role cluster (k10)"
+        "description": "Job taxonomy role cluster (k10 / v3)"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR(512)",
+        "description": "O*NET code from mapped_role → MAPPEDROLE2ONET (empty when unmapped)"
       },
       {
         "name": "skill_k15",
         "type": "VARCHAR(512)",
-        "description": "Coarse skill taxonomy cluster"
+        "description": "Coarse skill taxonomy cluster (v3)"
       },
       {
         "name": "skill_k50",
         "type": "VARCHAR(512)",
-        "description": "Primary skill taxonomy cluster"
+        "description": "Primary skill taxonomy cluster used in the pipeline (v3)"
       },
       {
         "name": "skill_k150",
         "type": "VARCHAR(512)",
-        "description": "Finer skill taxonomy cluster"
+        "description": "Finer skill taxonomy cluster (v3)"
       },
       {
         "name": "month",
         "type": "VARCHAR(7)",
-        "description": "Observation month (`YYYY-MM`)"
+        "description": "Observation month (YYYY-MM)"
       },
       {
         "name": "count",
@@ -512,8 +551,8 @@ const DATASETS = [
     "index": 3,
     "name": "Postings dynamics",
     "path": "<YYYYMM>/postings_dynamics/postings_dynamics_*.parquet",
-    "grain": "Monthly slices from unified (COSMOS) job postings by company, country, state, metro area, and role",
-    "notes": "Start: May 2021 Notes: Does **not** include county. Geographic granularity stops at metro area.",
+    "grain": "Monthly company × country × state × metro_area × role_k10 × role_k50 × role_k150 from unified postings (May 2021 → batch month -15)",
+    "notes": "No county granularity. No metro salary percentiles. role_k10 delivered as job_category.",
     "fields": [
       {
         "name": "rcid",
@@ -594,11 +633,6 @@ const DATASETS = [
         "name": "filling_time_avg",
         "type": "FLOAT",
         "description": "Average days to fill (post date to remove date) for closed postings"
-      },
-      {
-        "name": "expected_hires",
-        "type": "FLOAT",
-        "description": "Sum of expected hires across postings in the slice (unified source only)"
       }
     ]
   },
@@ -607,8 +641,8 @@ const DATASETS = [
     "index": 4,
     "name": "Sentiment review trends",
     "path": "<YYYYMM>/sentiment_review_trends/sentiment_review_trends_*.parquet",
-    "grain": "Monthly Glassdoor **star-rating** trends by company, region, and job category",
-    "notes": "Start: May 2021 Notes: These are Glassdoor ratings / recommend flags, **not** NLP theme scores (see Sentiment scores).",
+    "grain": "Monthly company × region × country × state × metro_area × county × role_k10 × role_k50 × role_k150 × onet_code Glassdoor rating trends (from May 2021)",
+    "notes": "Glassdoor star ratings / recommend flags, not NLP theme scores. role_k10 as job_category. county from county_v3; onet_code from taxonomy id 61.",
     "fields": [
       {
         "name": "rcid",
@@ -623,17 +657,52 @@ const DATASETS = [
       {
         "name": "region",
         "type": "VARCHAR(512)",
-        "description": "Review region"
+        "description": "Review region (location v3)"
+      },
+      {
+        "name": "country",
+        "type": "VARCHAR(512)",
+        "description": "Review country (location v3)"
+      },
+      {
+        "name": "state",
+        "type": "VARCHAR(512)",
+        "description": "Review state (location v3)"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Review metro / MSA (location v3)"
+      },
+      {
+        "name": "county",
+        "type": "VARCHAR(512)",
+        "description": "Review county (location v3 / county_v3)"
       },
       {
         "name": "job_category",
         "type": "VARCHAR(512)",
-        "description": "Job taxonomy role_k10, delivered as `job_category`"
+        "description": "role_k10 renamed to job_category"
+      },
+      {
+        "name": "role_k50",
+        "type": "VARCHAR(512)",
+        "description": "Medium-grain job role cluster (v3)"
+      },
+      {
+        "name": "role_k150",
+        "type": "VARCHAR(512)",
+        "description": "Finer job role cluster (v3)"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR(512)",
+        "description": "O*NET / SOC code from taxonomy id 61"
       },
       {
         "name": "month",
         "type": "VARCHAR(7)",
-        "description": "Trend month (`YYYY-MM`)"
+        "description": "Trend month (YYYY-MM)"
       },
       {
         "name": "rating_overall",
@@ -668,7 +737,7 @@ const DATASETS = [
       {
         "name": "rating_work_life_balance",
         "type": "FLOAT",
-        "description": "Rolling-window work\u2013life balance rating"
+        "description": "Rolling-window work–life balance rating"
       },
       {
         "name": "rating_ceo",
@@ -698,7 +767,7 @@ const DATASETS = [
     "name": "Sentiment individual reviews",
     "path": "<YYYYMM>/sentiment_individual_reviews/sentiment_individual_reviews_*.parquet",
     "grain": "One row per Glassdoor review",
-    "notes": "Start: Reviews with `review_date_time` on or after 2021-05-01",
+    "notes": "Start: Reviews with `review_date_time` on or after 2021-05-01 SFTP unload currently paused in perceiviq.py (transform retained).",
     "fields": [
       {
         "name": "rcid",
@@ -828,7 +897,7 @@ const DATASETS = [
       {
         "name": "rating_work_life_balance",
         "type": "FLOAT",
-        "description": "Work\u2013life balance rating"
+        "description": "Work–life balance rating"
       },
       {
         "name": "review_summary",
@@ -897,13 +966,13 @@ const DATASETS = [
     "index": 6,
     "name": "Sentiment scores",
     "path": "<YYYYMM>/sentiment_scores/sentiment_scores_*.parquet",
-    "grain": "One row per company",
-    "notes": "v1 columns end with _sentiment (e.g. compensation_sentiment) = unweighted avg(score). v2 columns start with sentiment_ (e.g. sentiment_compensation) = sum(score_v2 \u00d7 weight_v2) / sum(weight_v2). Prefer v2 for new work; do not treat overlapping theme pairs as one series.",
+    "grain": "Monthly company × month cumulative NLP v2 theme trends (from May 2021)",
+    "notes": "Replaced the prior one-row-per-company SentimentScores export. Confidence-weighted v2 themes only (sentiment_*). Cumulative through each month; rcid and num_reviews are floats.",
     "fields": [
       {
         "name": "rcid",
-        "type": "NUMBER(38,0)",
-        "description": "Revelio company ID"
+        "type": "FLOAT",
+        "description": "Revelio company ID (float)"
       },
       {
         "name": "company",
@@ -911,304 +980,244 @@ const DATASETS = [
         "description": "Company name"
       },
       {
-        "name": "num_reviews",
-        "type": "NUMBER",
-        "description": "Number of Glassdoor reviews in the company aggregation"
-      },
-      {
-        "name": "management_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Management (unweighted avg)"
-      },
-      {
-        "name": "innovative_technology_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Innovative technology"
-      },
-      {
-        "name": "work_life_balance_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Work\u2013life balance"
-      },
-      {
-        "name": "mentorship_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Mentorship"
-      },
-      {
-        "name": "career_advancement_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Career advancement"
-      },
-      {
-        "name": "diversity_and_inclusion_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Diversity & inclusion"
-      },
-      {
-        "name": "coworkers_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Coworkers"
-      },
-      {
-        "name": "compensation_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Compensation"
-      },
-      {
-        "name": "culture_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Culture"
-      },
-      {
-        "name": "company_and_division_size_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Company / division size"
-      },
-      {
-        "name": "perks_and_benefits_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Perks & benefits"
-      },
-      {
-        "name": "onboarding_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Onboarding"
-      },
-      {
-        "name": "remote_work_sentiment",
-        "type": "FLOAT",
-        "description": "v1 \u2014 Remote work"
+        "name": "month",
+        "type": "VARCHAR(7)",
+        "description": "Trend month (YYYY-MM)"
       },
       {
         "name": "sentiment_benefits",
         "type": "FLOAT",
-        "description": "v2 \u2014 Benefits (confidence-weighted)"
+        "description": "v2 — benefits theme"
       },
       {
         "name": "sentiment_business_outlook",
         "type": "FLOAT",
-        "description": "v2 \u2014 Business outlook"
+        "description": "v2 — business outlook theme"
       },
       {
         "name": "sentiment_career_growth",
         "type": "FLOAT",
-        "description": "v2 \u2014 Career growth"
+        "description": "v2 — career growth theme"
       },
       {
         "name": "sentiment_childcare",
         "type": "FLOAT",
-        "description": "v2 \u2014 Childcare"
+        "description": "v2 — childcare theme"
       },
       {
         "name": "sentiment_clients_and_customers",
         "type": "FLOAT",
-        "description": "v2 \u2014 Clients & customers"
+        "description": "v2 — clients and customers theme"
       },
       {
         "name": "sentiment_commission",
         "type": "FLOAT",
-        "description": "v2 \u2014 Commission"
+        "description": "v2 — commission theme"
       },
       {
         "name": "sentiment_commitment",
         "type": "FLOAT",
-        "description": "v2 \u2014 Commitment"
+        "description": "v2 — commitment theme"
       },
       {
         "name": "sentiment_commute",
         "type": "FLOAT",
-        "description": "v2 \u2014 Commute"
+        "description": "v2 — commute theme"
       },
       {
         "name": "sentiment_company_growth",
         "type": "FLOAT",
-        "description": "v2 \u2014 Company growth"
+        "description": "v2 — company growth theme"
       },
       {
         "name": "sentiment_compensation",
         "type": "FLOAT",
-        "description": "v2 \u2014 Compensation"
+        "description": "v2 — compensation theme"
       },
       {
         "name": "sentiment_compliance",
         "type": "FLOAT",
-        "description": "v2 \u2014 Compliance"
+        "description": "v2 — compliance theme"
       },
       {
         "name": "sentiment_coworkers",
         "type": "FLOAT",
-        "description": "v2 \u2014 Coworkers"
+        "description": "v2 — coworkers theme"
       },
       {
         "name": "sentiment_culture",
         "type": "FLOAT",
-        "description": "v2 \u2014 Culture"
+        "description": "v2 — culture theme"
       },
       {
         "name": "sentiment_diversity_and_inclusion",
         "type": "FLOAT",
-        "description": "v2 \u2014 Diversity & inclusion"
+        "description": "v2 — diversity and inclusion theme"
       },
       {
         "name": "sentiment_education_assistance",
         "type": "FLOAT",
-        "description": "v2 \u2014 Education assistance"
+        "description": "v2 — education assistance theme"
       },
       {
         "name": "sentiment_efficiency_and_bureaucracy",
         "type": "FLOAT",
-        "description": "v2 \u2014 Efficiency & bureaucracy"
+        "description": "v2 — efficiency and bureaucracy theme"
       },
       {
         "name": "sentiment_ethics",
         "type": "FLOAT",
-        "description": "v2 \u2014 Ethics"
+        "description": "v2 — ethics theme"
       },
       {
         "name": "sentiment_family_support",
         "type": "FLOAT",
-        "description": "v2 \u2014 Family support"
+        "description": "v2 — family support theme"
       },
       {
         "name": "sentiment_harassment",
         "type": "FLOAT",
-        "description": "v2 \u2014 Harassment"
+        "description": "v2 — harassment theme"
       },
       {
         "name": "sentiment_healthcare",
         "type": "FLOAT",
-        "description": "v2 \u2014 Healthcare"
+        "description": "v2 — healthcare theme"
       },
       {
         "name": "sentiment_honesty",
         "type": "FLOAT",
-        "description": "v2 \u2014 Honesty"
+        "description": "v2 — honesty theme"
       },
       {
         "name": "sentiment_independence",
         "type": "FLOAT",
-        "description": "v2 \u2014 Independence"
+        "description": "v2 — independence theme"
       },
       {
         "name": "sentiment_integrity",
         "type": "FLOAT",
-        "description": "v2 \u2014 Integrity"
+        "description": "v2 — integrity theme"
       },
       {
         "name": "sentiment_internal_communication",
         "type": "FLOAT",
-        "description": "v2 \u2014 Internal communication"
+        "description": "v2 — internal communication theme"
       },
       {
         "name": "sentiment_job_security",
         "type": "FLOAT",
-        "description": "v2 \u2014 Job security"
+        "description": "v2 — job security theme"
       },
       {
         "name": "sentiment_leadership",
         "type": "FLOAT",
-        "description": "v2 \u2014 Leadership"
+        "description": "v2 — leadership theme"
       },
       {
         "name": "sentiment_mentorship",
         "type": "FLOAT",
-        "description": "v2 \u2014 Mentorship"
+        "description": "v2 — mentorship theme"
       },
       {
         "name": "sentiment_mission_and_vision",
         "type": "FLOAT",
-        "description": "v2 \u2014 Mission & vision"
+        "description": "v2 — mission and vision theme"
       },
       {
         "name": "sentiment_office_politics",
         "type": "FLOAT",
-        "description": "v2 \u2014 Office politics"
+        "description": "v2 — office politics theme"
       },
       {
         "name": "sentiment_onboarding",
         "type": "FLOAT",
-        "description": "v2 \u2014 Onboarding"
+        "description": "v2 — onboarding theme"
       },
       {
         "name": "sentiment_overtime",
         "type": "FLOAT",
-        "description": "v2 \u2014 Overtime"
+        "description": "v2 — overtime theme"
       },
       {
         "name": "sentiment_paid_time_off",
         "type": "FLOAT",
-        "description": "v2 \u2014 Paid time off"
+        "description": "v2 — paid time off theme"
       },
       {
         "name": "sentiment_prestige",
         "type": "FLOAT",
-        "description": "v2 \u2014 Prestige"
+        "description": "v2 — prestige theme"
       },
       {
         "name": "sentiment_product_and_service_quality",
         "type": "FLOAT",
-        "description": "v2 \u2014 Product & service quality"
+        "description": "v2 — product and service quality theme"
       },
       {
         "name": "sentiment_promotion_opportunities",
         "type": "FLOAT",
-        "description": "v2 \u2014 Promotion opportunities"
+        "description": "v2 — promotion opportunities theme"
       },
       {
         "name": "sentiment_rating_overall",
         "type": "FLOAT",
-        "description": "v2 \u2014 Overall rating theme"
+        "description": "v2 — rating overall theme"
       },
       {
         "name": "sentiment_remote_work",
         "type": "FLOAT",
-        "description": "v2 \u2014 Remote work"
+        "description": "v2 — remote work theme"
       },
       {
         "name": "sentiment_retirement_pension",
         "type": "FLOAT",
-        "description": "v2 \u2014 Retirement / pension"
+        "description": "v2 — retirement pension theme"
       },
       {
         "name": "sentiment_safety",
         "type": "FLOAT",
-        "description": "v2 \u2014 Safety"
+        "description": "v2 — safety theme"
       },
       {
         "name": "sentiment_schedule_flexibility",
         "type": "FLOAT",
-        "description": "v2 \u2014 Schedule flexibility"
+        "description": "v2 — schedule flexibility theme"
       },
       {
         "name": "sentiment_technology",
         "type": "FLOAT",
-        "description": "v2 \u2014 Technology"
+        "description": "v2 — technology theme"
       },
       {
         "name": "sentiment_training",
         "type": "FLOAT",
-        "description": "v2 \u2014 Training"
+        "description": "v2 — training theme"
       },
       {
         "name": "sentiment_transparency",
         "type": "FLOAT",
-        "description": "v2 \u2014 Transparency"
+        "description": "v2 — transparency theme"
       },
       {
         "name": "sentiment_wellness_programs",
         "type": "FLOAT",
-        "description": "v2 \u2014 Wellness programs"
+        "description": "v2 — wellness programs theme"
       },
       {
         "name": "sentiment_work_life_balance",
         "type": "FLOAT",
-        "description": "v2 \u2014 Work\u2013life balance"
+        "description": "v2 — work life balance theme"
       },
       {
         "name": "sentiment_workplace_facilities",
         "type": "FLOAT",
-        "description": "v2 \u2014 Workplace facilities"
+        "description": "v2 — workplace facilities theme"
+      },
+      {
+        "name": "num_reviews",
+        "type": "FLOAT",
+        "description": "Cumulative review count through the month (float)"
       }
     ]
   },
@@ -1345,7 +1354,7 @@ const DATASETS = [
   {
     "id": "role_taxonomy_soc_crosswalk",
     "index": 9,
-    "name": "Role taxonomy \u2194 SOC crosswalk",
+    "name": "Role taxonomy ↔ SOC crosswalk",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "One row per `role_v3_id`, joining the Revelio role taxonomy (taxonomy_id = 0) to the SOC / O\\*NET custom taxonomy (taxonomy_id = 61, job_taxonomy_version = 3.2.0)",
     "notes": "Cadence: Annual. Revelio-side role columns are prefixed `revelio_`. SOC-side columns retain `role_k*` names plus `*_common_titles`.",
@@ -1682,7 +1691,7 @@ const DATASETS = [
     "index": 12,
     "name": "Modeled wage file",
     "path": "<YYYYMM>/occupation_geography_wages/",
-    "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation \u00d7 geography (county FIPS preferred, else CBSA) \u00d7 period",
+    "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation × geography (county FIPS preferred, else CBSA) × period",
     "notes": "Cadence: Monthly. Built from postings with non-null modeled salary and employer; geography requires a county or CBSA match. Active vs new flags expand postings across months between post and remove dates (6-month implied close when remove is null and 6 months after post is in the past).",
     "fields": [
       {
@@ -1758,12 +1767,12 @@ const DATASETS = [
       {
         "name": "entry_level_wage",
         "type": "FLOAT",
-        "description": "Median active base salary where seniority \u2264 1"
+        "description": "Median active base salary where seniority ≤ 1"
       },
       {
         "name": "entry_level_total_comp",
         "type": "FLOAT",
-        "description": "Median active total compensation where seniority \u2264 1"
+        "description": "Median active total compensation where seniority ≤ 1"
       },
       {
         "name": "active_posting_count",
@@ -2202,10 +2211,7 @@ const DATASETS = [
       }
     ]
   }
-];
-
-const sel = document.getElementById('dataset');
-const filter = document.getElementById('filter');
+]cument.getElementById('filter');
 const tbody = document.getElementById('tbody');
 const overview = document.getElementById('overview');
 const cadenceFor = (d) => {
