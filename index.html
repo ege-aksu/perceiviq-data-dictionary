@@ -1502,7 +1502,7 @@ const DATASETS = [
     "name": "Company directory",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Flat company reference snapshot from `full_company_ref_monthly`",
-    "notes": "Cadence: Quarterly. Distinct from the hierarchical company reference delivery (#0). Includes location v4 HQ fields; column names follow the monthly full company ref export (e.g. `exchange`, `naics`).",
+    "notes": "Cadence: Quarterly. Distinct from the hierarchical company reference delivery. Includes location v4 HQ fields. public_private_flag from dashboard ent_type (PUB → public, else private).",
     "fields": [
       {
         "name": "rcid",
@@ -1618,6 +1618,11 @@ const DATASETS = [
         "name": "ultimate_parent_rcid_name",
         "type": "VARCHAR",
         "description": "Ultimate parent company name"
+      },
+      {
+        "name": "public_private_flag",
+        "type": "VARCHAR",
+        "description": "public if dashboard ent_type = PUB; otherwise private"
       }
     ]
   },
@@ -1807,8 +1812,43 @@ const DATASETS = [
     ]
   },
   {
-    "id": "unified_postings_weekly",
+    "id": "wages_raw",
     "index": 13,
+    "name": "Raw wages file",
+    "path": "first_phase_deliveries/<YYYYMM>/wages_raw/",
+    "grain": "Posting date × metro_area × NAICS × O*NET raw salary figures",
+    "notes": "Companion to the modeled occupation_geography_wages file. Uses raw posted salaries (not Revelio modeled wages). Exact measure columns follow the delivered extract; grain dimensions below.",
+    "fields": [
+      {
+        "name": "post_date",
+        "type": "DATE / VARCHAR",
+        "description": "Job posting date (grain dimension)"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR",
+        "description": "Metro / MSA of the posting (grain dimension)"
+      },
+      {
+        "name": "naics",
+        "type": "VARCHAR",
+        "description": "Employer NAICS code (grain dimension)"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR",
+        "description": "O*NET / occupation code (grain dimension)"
+      },
+      {
+        "name": "salary (and related raw measures)",
+        "type": "FLOAT",
+        "description": "Raw posted salary figures at this grain — not modeled wage estimates"
+      }
+    ]
+  },
+  {
+    "id": "unified_postings_weekly",
+    "index": 14,
     "name": "Unified postings (weekly)",
     "path": "<YYYYMMDD>/unified_postings/unified_postings_*.parquet",
     "grain": "One row per COSMOS unified job posting for US-headquartered in-scope companies",
@@ -2118,7 +2158,7 @@ const DATASETS = [
   },
   {
     "id": "unified_posting_skills_weekly",
-    "index": 14,
+    "index": 15,
     "name": "Unified posting skills (weekly)",
     "path": "<YYYYMMDD>/unified_postings_skills/unified_postings_skills_*.parquet",
     "grain": "One row per skill extracted from a unified posting that is in the weekly postings delivery",
@@ -2215,7 +2255,7 @@ const DATASETS = [
 const tbody = document.getElementById('tbody');
 const overview = document.getElementById('overview');
 const cadenceFor = (d) => {
-  if (d.index <= 8 || d.index === 12) return 'Monthly';
+  if (d.index <= 8 || d.index === 12 || d.index === 13) return 'Monthly';
   if (d.index === 9 || d.index === 11) return 'Annual';
   if (d.index === 10) return 'Quarterly';
   return 'Weekly (Friday)';
