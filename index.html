@@ -1352,6 +1352,106 @@ const DATASETS = [
     ]
   },
   {
+    "id": "cert_dynamics",
+    "index": 16,
+    "name": "Certification dynamics",
+    "path": "<YYYYMM>/cert_dynamics/cert_dynamics_*.parquet",
+    "grain": "cert_k10 × cert_k50 × county × metro_area × role_k10 × onet_code × month",
+    "notes": "Monthly inflow: count of certifications whose startdate falls in the month, attributed to one in-scope company position active on that date (latest position startdate on ties). Titles mapped via user_ege.permanent.cert_name_embeddings_20260721_with_clusters (lower(trim) join on TITLE → CERT_K10/CERT_K50); unmatched titles excluded. Start: month >= 2021-05. LWDA not included in v1.",
+    "fields": [
+      {
+        "name": "month",
+        "type": "VARCHAR(7)",
+        "description": "Inflow month YYYY-MM from certification startdate"
+      },
+      {
+        "name": "county",
+        "type": "VARCHAR(512)",
+        "description": "County (location v3 / county_v3); empty when missing"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Metro area (MSA); empty when missing"
+      },
+      {
+        "name": "role_k10",
+        "type": "VARCHAR(512)",
+        "description": "Role taxonomy k10 from the attributed position"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR(512)",
+        "description": "O*NET code from mapped role; empty when missing"
+      },
+      {
+        "name": "cert_k10",
+        "type": "VARCHAR(512)",
+        "description": "Coarse certification cluster (CERT_K10)"
+      },
+      {
+        "name": "cert_k50",
+        "type": "VARCHAR(512)",
+        "description": "Fine certification cluster (CERT_K50)"
+      },
+      {
+        "name": "count",
+        "type": "NUMBER(38,0)",
+        "description": "Number of new certifications (inflow) in the cell"
+      }
+    ]
+  },
+  {
+    "id": "course_dynamics",
+    "index": 17,
+    "name": "Course dynamics",
+    "path": "<YYYYMM>/course_dynamics/course_dynamics_*.parquet",
+    "grain": "course_k10 × course_k50 × county × metro_area × role_k10 × onet_code × month",
+    "notes": "Inflow heuristic (courses have no earn dates): attribution date = coalesce(updated_dt::date, current_date); attributed to one in-scope position active on that date. Period = YYYY-MM of attribution date — not a true earn-date inflow. Titles mapped via user_ege.permanent.course_name_embeddings_20260721_with_clusters; unmatched titles excluded. Start: month >= 2021-05. LWDA not included in v1.",
+    "fields": [
+      {
+        "name": "month",
+        "type": "VARCHAR(7)",
+        "description": "Attribution month YYYY-MM (not earn date)"
+      },
+      {
+        "name": "county",
+        "type": "VARCHAR(512)",
+        "description": "County (location v3 / county_v3); empty when missing"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Metro area (MSA); empty when missing"
+      },
+      {
+        "name": "role_k10",
+        "type": "VARCHAR(512)",
+        "description": "Role taxonomy k10 from the attributed position"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR(512)",
+        "description": "O*NET code from mapped role; empty when missing"
+      },
+      {
+        "name": "course_k10",
+        "type": "VARCHAR(512)",
+        "description": "Coarse course cluster (COURSE_K10)"
+      },
+      {
+        "name": "course_k50",
+        "type": "VARCHAR(512)",
+        "description": "Fine course cluster (COURSE_K50)"
+      },
+      {
+        "name": "count",
+        "type": "NUMBER(38,0)",
+        "description": "Number of courses attributed to the cell"
+      }
+    ]
+  },
+  {
     "id": "role_taxonomy_soc_crosswalk",
     "index": 9,
     "name": "Role taxonomy ↔ SOC crosswalk",
@@ -2258,7 +2358,7 @@ const filter = document.getElementById('filter');
 const tbody = document.getElementById('tbody');
 const overview = document.getElementById('overview');
 const cadenceFor = (d) => {
-  if (d.index <= 8 || d.index === 12 || d.index === 13) return 'Monthly';
+  if (d.index <= 8 || d.index === 12 || d.index === 13 || d.index === 16 || d.index === 17) return 'Monthly';
   if (d.index === 9 || d.index === 11) return 'Annual';
   if (d.index === 10) return 'Quarterly';
   return 'Weekly (Friday)';
