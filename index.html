@@ -331,7 +331,7 @@ const DATASETS = [
     "index": 1,
     "name": "Workforce dynamics",
     "path": "<YYYYMM>/workforce_dynamics/workforce_dynamics_*.parquet",
-    "grain": "Monthly company × seniority × region × country × state × metro_area × role_k10 × role_k50 × role_k150 × onet_code (from May 2021)",
+    "grain": "Monthly company \u00d7 seniority \u00d7 region \u00d7 country \u00d7 state \u00d7 metro_area \u00d7 role_k10 \u00d7 role_k50 \u00d7 role_k150 \u00d7 onet_code (from May 2021)",
     "notes": "Rust WFD. role_k10 delivered as job_category. onet_code from O*NET taxonomy id 61. No county on WFD.",
     "fields": [
       {
@@ -446,7 +446,7 @@ const DATASETS = [
     "index": 2,
     "name": "Skill dynamics",
     "path": "<YYYYMM>/skill_dynamics/skill_dynamics_*.parquet",
-    "grain": "Monthly company × seniority × region × country × state × metro_area × county × role_k10 × onet_code × skill hierarchy (from May 2021)",
+    "grain": "Monthly company \u00d7 seniority \u00d7 region \u00d7 country \u00d7 state \u00d7 metro_area \u00d7 county \u00d7 role_k10 \u00d7 onet_code \u00d7 skill hierarchy (from May 2021)",
     "notes": "Skill taxonomy v3.0.7 (skill_k50 pipeline grain; skill_k15 / skill_k150 appended). county from county_v3; onet_code via custom step. No finer roles on skill.",
     "fields": [
       {
@@ -497,7 +497,7 @@ const DATASETS = [
       {
         "name": "onet_code",
         "type": "VARCHAR(512)",
-        "description": "O*NET code from mapped_role → MAPPEDROLE2ONET (empty when unmapped)"
+        "description": "O*NET code from mapped_role \u2192 MAPPEDROLE2ONET (empty when unmapped)"
       },
       {
         "name": "skill_k15",
@@ -551,7 +551,7 @@ const DATASETS = [
     "index": 3,
     "name": "Postings dynamics",
     "path": "<YYYYMM>/postings_dynamics/postings_dynamics_*.parquet",
-    "grain": "Monthly company × country × state × metro_area × role_k10 × role_k50 × role_k150 from unified postings (May 2021 → batch month -15)",
+    "grain": "Monthly company \u00d7 country \u00d7 state \u00d7 metro_area \u00d7 role_k10 \u00d7 role_k50 \u00d7 role_k150 from unified postings (May 2021 \u2192 batch month -15)",
     "notes": "No county granularity. No metro salary percentiles. role_k10 delivered as job_category.",
     "fields": [
       {
@@ -641,7 +641,7 @@ const DATASETS = [
     "index": 4,
     "name": "Sentiment review trends",
     "path": "<YYYYMM>/sentiment_review_trends/sentiment_review_trends_*.parquet",
-    "grain": "Monthly company × region × country × state × metro_area × county × role_k10 × role_k50 × role_k150 × onet_code Glassdoor rating trends (from May 2021)",
+    "grain": "Monthly company \u00d7 region \u00d7 country \u00d7 state \u00d7 metro_area \u00d7 county \u00d7 role_k10 \u00d7 role_k50 \u00d7 role_k150 \u00d7 onet_code Glassdoor rating trends (from May 2021)",
     "notes": "Glassdoor star ratings / recommend flags, not NLP theme scores. role_k10 as job_category. county from county_v3; onet_code from taxonomy id 61.",
     "fields": [
       {
@@ -737,7 +737,7 @@ const DATASETS = [
       {
         "name": "rating_work_life_balance",
         "type": "FLOAT",
-        "description": "Rolling-window work–life balance rating"
+        "description": "Rolling-window work\u2013life balance rating"
       },
       {
         "name": "rating_ceo",
@@ -897,7 +897,7 @@ const DATASETS = [
       {
         "name": "rating_work_life_balance",
         "type": "FLOAT",
-        "description": "Work–life balance rating"
+        "description": "Work\u2013life balance rating"
       },
       {
         "name": "review_summary",
@@ -966,7 +966,7 @@ const DATASETS = [
     "index": 6,
     "name": "Sentiment scores",
     "path": "<YYYYMM>/sentiment_scores/sentiment_scores_*.parquet",
-    "grain": "Monthly company × month cumulative NLP v2 theme trends (from May 2021)",
+    "grain": "Monthly company \u00d7 month cumulative NLP v2 theme trends (from May 2021)",
     "notes": "Replaced the prior one-row-per-company SentimentScores export. Confidence-weighted v2 themes only (sentiment_*). Cumulative through each month; rcid and num_reviews are floats.",
     "fields": [
       {
@@ -987,232 +987,232 @@ const DATASETS = [
       {
         "name": "sentiment_benefits",
         "type": "FLOAT",
-        "description": "v2 — benefits theme"
+        "description": "v2 \u2014 benefits theme"
       },
       {
         "name": "sentiment_business_outlook",
         "type": "FLOAT",
-        "description": "v2 — business outlook theme"
+        "description": "v2 \u2014 business outlook theme"
       },
       {
         "name": "sentiment_career_growth",
         "type": "FLOAT",
-        "description": "v2 — career growth theme"
+        "description": "v2 \u2014 career growth theme"
       },
       {
         "name": "sentiment_childcare",
         "type": "FLOAT",
-        "description": "v2 — childcare theme"
+        "description": "v2 \u2014 childcare theme"
       },
       {
         "name": "sentiment_clients_and_customers",
         "type": "FLOAT",
-        "description": "v2 — clients and customers theme"
+        "description": "v2 \u2014 clients and customers theme"
       },
       {
         "name": "sentiment_commission",
         "type": "FLOAT",
-        "description": "v2 — commission theme"
+        "description": "v2 \u2014 commission theme"
       },
       {
         "name": "sentiment_commitment",
         "type": "FLOAT",
-        "description": "v2 — commitment theme"
+        "description": "v2 \u2014 commitment theme"
       },
       {
         "name": "sentiment_commute",
         "type": "FLOAT",
-        "description": "v2 — commute theme"
+        "description": "v2 \u2014 commute theme"
       },
       {
         "name": "sentiment_company_growth",
         "type": "FLOAT",
-        "description": "v2 — company growth theme"
+        "description": "v2 \u2014 company growth theme"
       },
       {
         "name": "sentiment_compensation",
         "type": "FLOAT",
-        "description": "v2 — compensation theme"
+        "description": "v2 \u2014 compensation theme"
       },
       {
         "name": "sentiment_compliance",
         "type": "FLOAT",
-        "description": "v2 — compliance theme"
+        "description": "v2 \u2014 compliance theme"
       },
       {
         "name": "sentiment_coworkers",
         "type": "FLOAT",
-        "description": "v2 — coworkers theme"
+        "description": "v2 \u2014 coworkers theme"
       },
       {
         "name": "sentiment_culture",
         "type": "FLOAT",
-        "description": "v2 — culture theme"
+        "description": "v2 \u2014 culture theme"
       },
       {
         "name": "sentiment_diversity_and_inclusion",
         "type": "FLOAT",
-        "description": "v2 — diversity and inclusion theme"
+        "description": "v2 \u2014 diversity and inclusion theme"
       },
       {
         "name": "sentiment_education_assistance",
         "type": "FLOAT",
-        "description": "v2 — education assistance theme"
+        "description": "v2 \u2014 education assistance theme"
       },
       {
         "name": "sentiment_efficiency_and_bureaucracy",
         "type": "FLOAT",
-        "description": "v2 — efficiency and bureaucracy theme"
+        "description": "v2 \u2014 efficiency and bureaucracy theme"
       },
       {
         "name": "sentiment_ethics",
         "type": "FLOAT",
-        "description": "v2 — ethics theme"
+        "description": "v2 \u2014 ethics theme"
       },
       {
         "name": "sentiment_family_support",
         "type": "FLOAT",
-        "description": "v2 — family support theme"
+        "description": "v2 \u2014 family support theme"
       },
       {
         "name": "sentiment_harassment",
         "type": "FLOAT",
-        "description": "v2 — harassment theme"
+        "description": "v2 \u2014 harassment theme"
       },
       {
         "name": "sentiment_healthcare",
         "type": "FLOAT",
-        "description": "v2 — healthcare theme"
+        "description": "v2 \u2014 healthcare theme"
       },
       {
         "name": "sentiment_honesty",
         "type": "FLOAT",
-        "description": "v2 — honesty theme"
+        "description": "v2 \u2014 honesty theme"
       },
       {
         "name": "sentiment_independence",
         "type": "FLOAT",
-        "description": "v2 — independence theme"
+        "description": "v2 \u2014 independence theme"
       },
       {
         "name": "sentiment_integrity",
         "type": "FLOAT",
-        "description": "v2 — integrity theme"
+        "description": "v2 \u2014 integrity theme"
       },
       {
         "name": "sentiment_internal_communication",
         "type": "FLOAT",
-        "description": "v2 — internal communication theme"
+        "description": "v2 \u2014 internal communication theme"
       },
       {
         "name": "sentiment_job_security",
         "type": "FLOAT",
-        "description": "v2 — job security theme"
+        "description": "v2 \u2014 job security theme"
       },
       {
         "name": "sentiment_leadership",
         "type": "FLOAT",
-        "description": "v2 — leadership theme"
+        "description": "v2 \u2014 leadership theme"
       },
       {
         "name": "sentiment_mentorship",
         "type": "FLOAT",
-        "description": "v2 — mentorship theme"
+        "description": "v2 \u2014 mentorship theme"
       },
       {
         "name": "sentiment_mission_and_vision",
         "type": "FLOAT",
-        "description": "v2 — mission and vision theme"
+        "description": "v2 \u2014 mission and vision theme"
       },
       {
         "name": "sentiment_office_politics",
         "type": "FLOAT",
-        "description": "v2 — office politics theme"
+        "description": "v2 \u2014 office politics theme"
       },
       {
         "name": "sentiment_onboarding",
         "type": "FLOAT",
-        "description": "v2 — onboarding theme"
+        "description": "v2 \u2014 onboarding theme"
       },
       {
         "name": "sentiment_overtime",
         "type": "FLOAT",
-        "description": "v2 — overtime theme"
+        "description": "v2 \u2014 overtime theme"
       },
       {
         "name": "sentiment_paid_time_off",
         "type": "FLOAT",
-        "description": "v2 — paid time off theme"
+        "description": "v2 \u2014 paid time off theme"
       },
       {
         "name": "sentiment_prestige",
         "type": "FLOAT",
-        "description": "v2 — prestige theme"
+        "description": "v2 \u2014 prestige theme"
       },
       {
         "name": "sentiment_product_and_service_quality",
         "type": "FLOAT",
-        "description": "v2 — product and service quality theme"
+        "description": "v2 \u2014 product and service quality theme"
       },
       {
         "name": "sentiment_promotion_opportunities",
         "type": "FLOAT",
-        "description": "v2 — promotion opportunities theme"
+        "description": "v2 \u2014 promotion opportunities theme"
       },
       {
         "name": "sentiment_rating_overall",
         "type": "FLOAT",
-        "description": "v2 — rating overall theme"
+        "description": "v2 \u2014 rating overall theme"
       },
       {
         "name": "sentiment_remote_work",
         "type": "FLOAT",
-        "description": "v2 — remote work theme"
+        "description": "v2 \u2014 remote work theme"
       },
       {
         "name": "sentiment_retirement_pension",
         "type": "FLOAT",
-        "description": "v2 — retirement pension theme"
+        "description": "v2 \u2014 retirement pension theme"
       },
       {
         "name": "sentiment_safety",
         "type": "FLOAT",
-        "description": "v2 — safety theme"
+        "description": "v2 \u2014 safety theme"
       },
       {
         "name": "sentiment_schedule_flexibility",
         "type": "FLOAT",
-        "description": "v2 — schedule flexibility theme"
+        "description": "v2 \u2014 schedule flexibility theme"
       },
       {
         "name": "sentiment_technology",
         "type": "FLOAT",
-        "description": "v2 — technology theme"
+        "description": "v2 \u2014 technology theme"
       },
       {
         "name": "sentiment_training",
         "type": "FLOAT",
-        "description": "v2 — training theme"
+        "description": "v2 \u2014 training theme"
       },
       {
         "name": "sentiment_transparency",
         "type": "FLOAT",
-        "description": "v2 — transparency theme"
+        "description": "v2 \u2014 transparency theme"
       },
       {
         "name": "sentiment_wellness_programs",
         "type": "FLOAT",
-        "description": "v2 — wellness programs theme"
+        "description": "v2 \u2014 wellness programs theme"
       },
       {
         "name": "sentiment_work_life_balance",
         "type": "FLOAT",
-        "description": "v2 — work life balance theme"
+        "description": "v2 \u2014 work life balance theme"
       },
       {
         "name": "sentiment_workplace_facilities",
         "type": "FLOAT",
-        "description": "v2 — workplace facilities theme"
+        "description": "v2 \u2014 workplace facilities theme"
       },
       {
         "name": "num_reviews",
@@ -1352,109 +1352,9 @@ const DATASETS = [
     ]
   },
   {
-    "id": "cert_dynamics",
-    "index": 16,
-    "name": "Certification dynamics",
-    "path": "<YYYYMM>/cert_dynamics/cert_dynamics_*.parquet",
-    "grain": "cert_k10 × cert_k50 × county × metro_area × role_k10 × onet_code × month",
-    "notes": "Monthly inflow: count of certifications whose startdate falls in the month, attributed to one in-scope company position active on that date (latest position startdate on ties). Titles mapped via user_ege.permanent.cert_name_embeddings_20260721_with_clusters (lower(trim) join on TITLE → CERT_K10/CERT_K50); unmatched titles excluded. Start: month >= 2021-05. LWDA not included in v1.",
-    "fields": [
-      {
-        "name": "month",
-        "type": "VARCHAR(7)",
-        "description": "Inflow month YYYY-MM from certification startdate"
-      },
-      {
-        "name": "county",
-        "type": "VARCHAR(512)",
-        "description": "County (location v3 / county_v3); empty when missing"
-      },
-      {
-        "name": "metro_area",
-        "type": "VARCHAR(512)",
-        "description": "Metro area (MSA); empty when missing"
-      },
-      {
-        "name": "role_k10",
-        "type": "VARCHAR(512)",
-        "description": "Role taxonomy k10 from the attributed position"
-      },
-      {
-        "name": "onet_code",
-        "type": "VARCHAR(512)",
-        "description": "O*NET code from mapped role; empty when missing"
-      },
-      {
-        "name": "cert_k10",
-        "type": "VARCHAR(512)",
-        "description": "Coarse certification cluster (CERT_K10)"
-      },
-      {
-        "name": "cert_k50",
-        "type": "VARCHAR(512)",
-        "description": "Fine certification cluster (CERT_K50)"
-      },
-      {
-        "name": "count",
-        "type": "NUMBER(38,0)",
-        "description": "Number of new certifications (inflow) in the cell"
-      }
-    ]
-  },
-  {
-    "id": "course_dynamics",
-    "index": 17,
-    "name": "Course dynamics",
-    "path": "<YYYYMM>/course_dynamics/course_dynamics_*.parquet",
-    "grain": "course_k10 × course_k50 × county × metro_area × role_k10 × onet_code × month",
-    "notes": "Inflow heuristic (courses have no earn dates): attribution date = coalesce(updated_dt::date, current_date); attributed to one in-scope position active on that date. Period = YYYY-MM of attribution date — not a true earn-date inflow. Titles mapped via user_ege.permanent.course_name_embeddings_20260721_with_clusters; unmatched titles excluded. Start: month >= 2021-05. LWDA not included in v1.",
-    "fields": [
-      {
-        "name": "month",
-        "type": "VARCHAR(7)",
-        "description": "Attribution month YYYY-MM (not earn date)"
-      },
-      {
-        "name": "county",
-        "type": "VARCHAR(512)",
-        "description": "County (location v3 / county_v3); empty when missing"
-      },
-      {
-        "name": "metro_area",
-        "type": "VARCHAR(512)",
-        "description": "Metro area (MSA); empty when missing"
-      },
-      {
-        "name": "role_k10",
-        "type": "VARCHAR(512)",
-        "description": "Role taxonomy k10 from the attributed position"
-      },
-      {
-        "name": "onet_code",
-        "type": "VARCHAR(512)",
-        "description": "O*NET code from mapped role; empty when missing"
-      },
-      {
-        "name": "course_k10",
-        "type": "VARCHAR(512)",
-        "description": "Coarse course cluster (COURSE_K10)"
-      },
-      {
-        "name": "course_k50",
-        "type": "VARCHAR(512)",
-        "description": "Fine course cluster (COURSE_K50)"
-      },
-      {
-        "name": "count",
-        "type": "NUMBER(38,0)",
-        "description": "Number of courses attributed to the cell"
-      }
-    ]
-  },
-  {
     "id": "role_taxonomy_soc_crosswalk",
     "index": 9,
-    "name": "Role taxonomy ↔ SOC crosswalk",
+    "name": "Role taxonomy \u2194 SOC crosswalk",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "One row per `role_v3_id`, joining the Revelio role taxonomy (taxonomy_id = 0) to the SOC / O\\*NET custom taxonomy (taxonomy_id = 61, job_taxonomy_version = 3.2.0)",
     "notes": "Cadence: Annual. Revelio-side role columns are prefixed `revelio_`. SOC-side columns retain `role_k*` names plus `*_common_titles`.",
@@ -1602,7 +1502,7 @@ const DATASETS = [
     "name": "Company directory",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Flat company reference snapshot from `full_company_ref_monthly`",
-    "notes": "Cadence: Quarterly. Distinct from the hierarchical company reference delivery. Includes location v4 HQ fields. public_private_flag from dashboard ent_type (PUB → public, else private).",
+    "notes": "Cadence: Quarterly. Distinct from the hierarchical company reference delivery. Includes location v4 HQ fields. public_private_flag from dashboard ent_type (PUB \u2192 public, else private).",
     "fields": [
       {
         "name": "rcid",
@@ -1796,7 +1696,7 @@ const DATASETS = [
     "index": 12,
     "name": "Modeled wage file",
     "path": "<YYYYMM>/occupation_geography_wages/",
-    "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation × geography (county FIPS preferred, else CBSA) × period",
+    "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation \u00d7 geography (county FIPS preferred, else CBSA) \u00d7 period",
     "notes": "Cadence: Monthly. Built from postings with non-null modeled salary and employer; geography requires a county or CBSA match. Active vs new flags expand postings across months between post and remove dates (6-month implied close when remove is null and 6 months after post is in the past).",
     "fields": [
       {
@@ -1872,12 +1772,12 @@ const DATASETS = [
       {
         "name": "entry_level_wage",
         "type": "FLOAT",
-        "description": "Median active base salary where seniority ≤ 1"
+        "description": "Median active base salary where seniority \u2264 1"
       },
       {
         "name": "entry_level_total_comp",
         "type": "FLOAT",
-        "description": "Median active total compensation where seniority ≤ 1"
+        "description": "Median active total compensation where seniority \u2264 1"
       },
       {
         "name": "active_posting_count",
@@ -1916,7 +1816,7 @@ const DATASETS = [
     "index": 13,
     "name": "Raw wages file",
     "path": "first_phase_deliveries/<YYYYMM>/",
-    "grain": "Posting date × metro_area × NAICS × O*NET raw salary figures",
+    "grain": "Posting date \u00d7 metro_area \u00d7 NAICS \u00d7 O*NET raw salary figures",
     "notes": "Delivered under first_phase_deliveries/{batchtime}/ as wages_raw. Companion to the modeled occupation_geography_wages file. Uses raw posted salaries (not Revelio modeled wages). Exact measure columns follow the delivered extract; grain dimensions below.",
     "fields": [
       {
@@ -1942,7 +1842,7 @@ const DATASETS = [
       {
         "name": "salary (and related raw measures)",
         "type": "FLOAT",
-        "description": "Raw posted salary figures at this grain — not modeled wage estimates"
+        "description": "Raw posted salary figures at this grain \u2014 not modeled wage estimates"
       }
     ]
   },
@@ -2348,6 +2248,106 @@ const DATASETS = [
         "name": "last_scraped_date",
         "type": "TIMESTAMP_NTZ(9)",
         "description": "Last scrape timestamp from the parent posting"
+      }
+    ]
+  },
+  {
+    "id": "cert_dynamics",
+    "index": 16,
+    "name": "Certification dynamics",
+    "path": "<YYYYMM>/cert_dynamics/cert_dynamics_*.parquet",
+    "grain": "cert_k10 \u00d7 cert_k50 \u00d7 county \u00d7 metro_area \u00d7 role_k10 \u00d7 onet_code \u00d7 month",
+    "notes": "Monthly inflow: count of certifications whose startdate falls in the month, attributed to one in-scope company position active on that date (latest position startdate on ties). Titles mapped via user_ege.permanent.cert_name_embeddings_20260721_with_clusters (lower(trim) join on TITLE \u2192 CERT_K10/CERT_K50); unmatched titles excluded. Start: month >= 2021-05. LWDA not included in v1.",
+    "fields": [
+      {
+        "name": "month",
+        "type": "VARCHAR(7)",
+        "description": "Inflow month YYYY-MM from certification startdate"
+      },
+      {
+        "name": "county",
+        "type": "VARCHAR(512)",
+        "description": "County (location v3 / county_v3); empty when missing"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Metro area (MSA); empty when missing"
+      },
+      {
+        "name": "role_k10",
+        "type": "VARCHAR(512)",
+        "description": "Role taxonomy k10 from the attributed position"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR(512)",
+        "description": "O*NET code from mapped role; empty when missing"
+      },
+      {
+        "name": "cert_k10",
+        "type": "VARCHAR(512)",
+        "description": "Coarse certification cluster (CERT_K10)"
+      },
+      {
+        "name": "cert_k50",
+        "type": "VARCHAR(512)",
+        "description": "Fine certification cluster (CERT_K50)"
+      },
+      {
+        "name": "count",
+        "type": "NUMBER(38,0)",
+        "description": "Number of new certifications (inflow) in the cell"
+      }
+    ]
+  },
+  {
+    "id": "course_dynamics",
+    "index": 17,
+    "name": "Course dynamics",
+    "path": "<YYYYMM>/course_dynamics/course_dynamics_*.parquet",
+    "grain": "course_k10 \u00d7 course_k50 \u00d7 county \u00d7 metro_area \u00d7 role_k10 \u00d7 onet_code \u00d7 month",
+    "notes": "Inflow heuristic (courses have no earn dates): attribution date = coalesce(updated_dt::date, current_date); attributed to one in-scope position active on that date. Period = YYYY-MM of attribution date \u2014 not a true earn-date inflow. Titles mapped via user_ege.permanent.course_name_embeddings_20260721_with_clusters; unmatched titles excluded. Start: month >= 2021-05. LWDA not included in v1.",
+    "fields": [
+      {
+        "name": "month",
+        "type": "VARCHAR(7)",
+        "description": "Attribution month YYYY-MM (not earn date)"
+      },
+      {
+        "name": "county",
+        "type": "VARCHAR(512)",
+        "description": "County (location v3 / county_v3); empty when missing"
+      },
+      {
+        "name": "metro_area",
+        "type": "VARCHAR(512)",
+        "description": "Metro area (MSA); empty when missing"
+      },
+      {
+        "name": "role_k10",
+        "type": "VARCHAR(512)",
+        "description": "Role taxonomy k10 from the attributed position"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR(512)",
+        "description": "O*NET code from mapped role; empty when missing"
+      },
+      {
+        "name": "course_k10",
+        "type": "VARCHAR(512)",
+        "description": "Coarse course cluster (COURSE_K10)"
+      },
+      {
+        "name": "course_k50",
+        "type": "VARCHAR(512)",
+        "description": "Fine course cluster (COURSE_K50)"
+      },
+      {
+        "name": "count",
+        "type": "NUMBER(38,0)",
+        "description": "Number of courses attributed to the cell"
       }
     ]
   }
