@@ -2306,14 +2306,9 @@ const DATASETS = [
     "index": 17,
     "name": "Course dynamics",
     "path": "<YYYYMM>/course_dynamics/course_dynamics_*.parquet",
-    "grain": "course_k10 \u00d7 course_k50 \u00d7 county \u00d7 metro_area \u00d7 role_k10 \u00d7 onet_code \u00d7 month",
-    "notes": "Inflow heuristic (courses have no earn dates): attribution date = coalesce(updated_dt::date, current_date); attributed to one in-scope position active on that date. Period = YYYY-MM of attribution date \u2014 not a true earn-date inflow. Titles mapped via user_ege.permanent.course_name_embeddings_20260721_with_clusters; unmatched titles excluded. Start: month >= 2021-05. LWDA not included in v1.",
+    "grain": "course_k10 \u00d7 course_k50 \u00d7 county \u00d7 metro_area \u00d7 role_k10 \u00d7 onet_code",
+    "notes": "Static stock (no month): courses have no earn dates; updated_dt is profile scrape freshness. Each course attributed to one current in-scope position (enddate null; latest startdate on ties). Titles mapped via user_ege.permanent.course_name_embeddings_20260721_with_clusters; unmatched excluded. LWDA not included in v1.",
     "fields": [
-      {
-        "name": "month",
-        "type": "VARCHAR(7)",
-        "description": "Attribution month YYYY-MM (not earn date)"
-      },
       {
         "name": "county",
         "type": "VARCHAR(512)",
@@ -2347,7 +2342,7 @@ const DATASETS = [
       {
         "name": "count",
         "type": "NUMBER(38,0)",
-        "description": "Number of courses attributed to the cell"
+        "description": "Number of courses attributed to the cell (stock)"
       }
     ]
   }
