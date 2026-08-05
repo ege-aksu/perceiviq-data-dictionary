@@ -173,7 +173,7 @@
       Cert/course aggregates use the same privacy + geography_grain pattern; coverage companions report match rates.
       Paths are relative to the PerceivIQ SFTP root: <code>&lt;YYYYMM&gt;</code> identifies a monthly batch and
       <code>&lt;YYYYMMDD&gt;</code> identifies a Friday weekly delivery.
-      Company reference and individual reviews / certs / courses SFTP unloads are currently paused.
+      Individual reviews / certs / courses SFTP unloads are currently paused.
     </p>
 
     <div class="stats">
@@ -229,9 +229,9 @@ const DATASETS = [
     "id": "company_reference",
     "name": "Company reference",
     "path": "<YYYYMM>/company_ref/company_ref_*.parquet",
-    "grain": "One row per company (rcid), with child / ultimate-parent hierarchy columns",
-    "notes": "SFTP unload currently paused in perceiviq.py (transform retained).",
-    "cadence": "Monthly (paused)",
+    "grain": "Hierarchical full_company_ref_monthly rows for in-scope list companies and current pint subsidiaries (one row per rcid × child relationship)",
+    "notes": "Monthly SFTP. Same columns as the first-phase manual company directory: location v4 HQ fields, exchange/naics names, child/ultimate-parent, and public_private_flag from dashboard ent_type. Scoped to the same US-HQ shared public/private universe used by dynamics/sentiment (list + subs).",
+    "cadence": "Monthly",
     "fields": [
       {
         "name": "rcid",
@@ -254,12 +254,37 @@ const DATASETS = [
         "description": "Year the company was founded"
       },
       {
+        "name": "location_v4_region",
+        "type": "VARCHAR(65535)",
+        "description": "HQ region (location v4)"
+      },
+      {
+        "name": "location_v4_country",
+        "type": "VARCHAR(65535)",
+        "description": "HQ country (location v4)"
+      },
+      {
+        "name": "location_v4_metro_area",
+        "type": "VARCHAR(65535)",
+        "description": "HQ metro area (location v4)"
+      },
+      {
+        "name": "location_v4_city_core",
+        "type": "VARCHAR(65535)",
+        "description": "HQ city core (location v4)"
+      },
+      {
+        "name": "location_v4_postal_code",
+        "type": "VARCHAR(65535)",
+        "description": "HQ postal code (location v4)"
+      },
+      {
         "name": "ticker",
         "type": "VARCHAR(65535)",
         "description": "Primary equity ticker, when available"
       },
       {
-        "name": "exchange_name",
+        "name": "exchange",
         "type": "VARCHAR(65535)",
         "description": "Exchange associated with the ticker"
       },
@@ -279,12 +304,7 @@ const DATASETS = [
         "description": "CUSIP security identifier"
       },
       {
-        "name": "url",
-        "type": "VARCHAR(65535)",
-        "description": "Company website URL"
-      },
-      {
-        "name": "naics_code",
+        "name": "naics",
         "type": "VARCHAR(65535)",
         "description": "NAICS industry classification code"
       },
@@ -327,6 +347,11 @@ const DATASETS = [
         "name": "ultimate_parent_rcid_name",
         "type": "VARCHAR(65535)",
         "description": "Ultimate parent company name"
+      },
+      {
+        "name": "public_private_flag",
+        "type": "VARCHAR(65535)",
+        "description": "public if dashboard ent_type = PUB; otherwise private"
       }
     ],
     "index": 0
@@ -1790,7 +1815,7 @@ const DATASETS = [
     "name": "Company directory",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Flat company reference snapshot from `full_company_ref_monthly`",
-    "notes": "Cadence: Quarterly. Distinct from the hierarchical company reference delivery. Includes location v4 HQ fields. public_private_flag from dashboard ent_type (PUB → public, else private).",
+    "notes": "Cadence: Quarterly first-phase snapshot. The monthly SFTP company_ref now ships this same schema for the in-scope delivery universe.",
     "fields": [
       {
         "name": "rcid",
