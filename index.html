@@ -360,8 +360,8 @@ const DATASETS = [
     "id": "workforce_dynamics",
     "name": "Workforce dynamics",
     "path": "<YYYYMM>/workforce_dynamics/workforce_dynamics_*.parquet",
-    "grain": "Monthly company × seniority × region × country × state × metro_area × county × role_k10 × role_k50 × role_k150 × onet_code (from May 2021)",
-    "notes": "Rust WFD. role_k10 delivered as job_category. onet_code from O*NET taxonomy id 61. county is an input custom dim from position county_v3 (not a Rust reference location).",
+    "grain": "Monthly company × seniority × region × country × state × metro_area × county × role_k10 × role_k50 × onet_code (from May 2021). role_k150 omitted per client request.",
+    "notes": "Rust WFD. role_k10 delivered as job_category. onet_code from O*NET taxonomy id 61. county is an input custom dim from position county_v3 (not a Rust reference location). role_k150 is not included.",
     "cadence": "Monthly",
     "fields": [
       {
@@ -413,11 +413,6 @@ const DATASETS = [
         "name": "role_k50",
         "type": "VARCHAR(65535)",
         "description": "Role taxonomy k50"
-      },
-      {
-        "name": "role_k150",
-        "type": "VARCHAR(65535)",
-        "description": "Role taxonomy k150"
       },
       {
         "name": "onet_code",
