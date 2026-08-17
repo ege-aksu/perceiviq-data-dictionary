@@ -477,7 +477,7 @@ const DATASETS = [
     "name": "Skill dynamics",
     "path": "<YYYYMM>/skill_dynamics/skill_dynamics_*.parquet",
     "grain": "Monthly company × seniority × region × country × state × metro_area × county × role_k10 × onet_code × skill_k15/k50/k150 (from May 2021)",
-    "notes": "SkillDynamicsPipeline at skill_k50 with taxonomy v3.0.7. skill_k15_index / skill_k50_index / skill_k150_index are stable cluster indices from custom_skills_taxonomy_v3_overall_versioned_dag.",
+    "notes": "SkillDynamicsPipeline at skill_k50 with taxonomy v3.0.7. skill_k15_index / skill_k50_index / skill_k150_index are stable cluster indices from custom_skills_taxonomy_v3_overall_versioned_dag. onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings), not mapped_role→MAPPEDROLE2ONET2019.",
     "cadence": "Monthly",
     "fields": [
       {
@@ -1439,7 +1439,7 @@ const DATASETS = [
     "name": "Certification dynamics",
     "path": "<YYYYMM>/cert_dynamics/cert_dynamics_*.parquet",
     "grain": "geography_grain × month × region/state/county/metro × role_k10 × onet × cert_k10 × cert_k50 × issuer",
-    "notes": "Inflow by certification startdate (LinkedIn self-reported start; completion proxy). Attributed to an in-scope position active on startdate. Titles mapped to clusters; unmatched excluded. issuer from company_cleaned (fallback company). geography_grain in {county, state, region}. Min cell size 10 → fine dims become 'undisclosed' (re-aggregated; rows not dropped).",
+    "notes": "Inflow by certification startdate (LinkedIn self-reported start; completion proxy). Attributed to an in-scope position active on startdate. Titles mapped to clusters; unmatched excluded. issuer from company_cleaned (fallback company). onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). geography_grain in {county, state, region}. Min cell size 10 → fine dims become 'undisclosed' (re-aggregated; rows not dropped).",
     "cadence": "Monthly",
     "fields": [
       {
@@ -1510,7 +1510,7 @@ const DATASETS = [
     "name": "Course dynamics",
     "path": "<YYYYMM>/course_dynamics/course_dynamics_*.parquet",
     "grain": "geography_grain × region/state/county/metro × role_k10 × onet × course_k10 × course_k50 (no month — static stock)",
-    "notes": "Static stock: courses have no earn dates; attributed to a current in-scope position (enddate null). Titles mapped to clusters; unmatched excluded. geography_grain in {county, state, region}. Min cell size 10 → undisclosed (same privacy pattern as cert_dynamics). No issuer column.",
+    "notes": "Static stock: courses have no earn dates; attributed to a current in-scope position (enddate null). Titles mapped to clusters; unmatched excluded. onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). geography_grain in {county, state, region}. Min cell size 10 → undisclosed (same privacy pattern as cert_dynamics). No issuer column.",
     "cadence": "Monthly",
     "fields": [
       {
