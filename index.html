@@ -166,15 +166,13 @@
       Interactive field catalog for monthly and weekly SFTP deliverables plus flat reference files.
       Parquet / Snappy. Scope: US-headquartered companies from Revelio shared public &amp; private lists;
       dynamics, postings, and sentiment time series start May 2021 where applicable.
-      Sentiment scores: per-month confidence-weighted <strong>v2</strong> NLP themes
-      (<code>sentiment_{theme}</code>) at <strong>review location</strong> geo (region/country/state/metro/county), not HQ.
-      Review trends: Glassdoor star ratings with min-cell privacy (<code>num_reviews</code> &lt; 10 →
-      <code>undisclosed</code>) and <code>geography_grain</code> in {county, state, region}.
-      Cert/course aggregates use the same privacy + geography_grain pattern; coverage companions report match rates.
-      Paths are relative to the PerceivIQ SFTP root: <code>&lt;YYYYMM&gt;</code> identifies a monthly batch and
-      <code>&lt;YYYYMMDD&gt;</code> identifies a Friday weekly delivery.
-      Individual reviews / certs / courses SFTP unloads are currently paused.
-    </p>
+      <strong>SFTP layout:</strong> <code>&lt;dataset&gt;/&lt;YYYYMMDD&gt;/</code>
+      (monthly date = batch month + 15th; weekly date = Friday batch date), plus <code>_SUCCESS</code>.
+      Weekly posting skills use skill taxonomy <strong>v3.1</strong> (<code>skill_v3_1_id</code>);
+      monthly skill dynamics also use v3.1. Last updated 2026-10-29.
+      Sentiment scores: per-month confidence-weighted v2 NLP themes
+      (sentiment_{theme}) at review location geo (region/country/state/metro/county), not HQ.
+</p>
 
     <div class="stats">
       <div class="stat"><strong id="stat-datasets">0</strong><span>Datasets</span></div>
@@ -228,7 +226,7 @@ const DATASETS = [
   {
     "id": "company_reference",
     "name": "Company reference",
-    "path": "<YYYYMM>/company_ref/company_ref_*.parquet",
+    "path": "company_ref/<YYYYMMDD>/company_ref_*.parquet",
     "grain": "Hierarchical full_company_ref_monthly rows for in-scope list companies and current pint subsidiaries (one row per rcid × child relationship)",
     "notes": "Monthly SFTP. Same columns as the first-phase manual company directory: location v4 HQ fields, exchange/naics names, child/ultimate-parent, and public_private_flag from dashboard ent_type. Scoped to the same US-HQ shared public/private universe used by dynamics/sentiment (list + subs).",
     "cadence": "Monthly",
@@ -359,7 +357,7 @@ const DATASETS = [
   {
     "id": "workforce_dynamics",
     "name": "Workforce dynamics",
-    "path": "<YYYYMM>/workforce_dynamics/workforce_dynamics_*.parquet",
+    "path": "workforce_dynamics/<YYYYMMDD>/workforce_dynamics_*.parquet",
     "grain": "Monthly company × seniority × region × country × state × metro_area × county × role_k10 × role_k50 × onet_code (from May 2021). role_k150 omitted per client request.",
     "notes": "Rust WFD. role_k10 delivered as job_category. onet_code from O*NET taxonomy id 61. county is an input custom dim from position county_v3 (not a Rust reference location). role_k150 is not included.",
     "cadence": "Monthly",
@@ -475,9 +473,9 @@ const DATASETS = [
   {
     "id": "skill_dynamics",
     "name": "Skill dynamics",
-    "path": "<YYYYMM>/skill_dynamics/skill_dynamics_*.parquet",
+    "path": "skill_dynamics/<YYYYMMDD>/skill_dynamics_*.parquet",
     "grain": "Monthly company × seniority × region × country × state × metro_area × county × role_k10 × onet_code × skill_k15/k50/k150 (from May 2021)",
-    "notes": "SkillDynamicsPipeline at skill_k50 with taxonomy v3.0.7. skill_k15_index / skill_k50_index / skill_k150_index are stable cluster indices from custom_skills_taxonomy_v3_overall_versioned_dag. onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings), not mapped_role→MAPPEDROLE2ONET2019.",
+    "notes": "SkillDynamicsPipeline at skill_k50 with skill taxonomy v3.1 (latest 3.1.x patch). skill_k15_index / skill_k50_index / skill_k150_index are stable cluster indices from custom_skills_taxonomy_v3_overall_versioned_dag. onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). SFTP layout: skill_dynamics/<YYYYMMDD>/ with YYYYMMDD = batch month + 15th; folder also contains _SUCCESS.",
     "cadence": "Monthly",
     "fields": [
       {
@@ -596,7 +594,7 @@ const DATASETS = [
   {
     "id": "postings_dynamics",
     "name": "Postings dynamics",
-    "path": "<YYYYMM>/postings_dynamics/postings_dynamics_*.parquet",
+    "path": "postings_dynamics/<YYYYMMDD>/postings_dynamics_*.parquet",
     "grain": "Monthly company × country × state × metro_area × role_k10 × role_k50 × role_k150 (from May 2021). No county.",
     "notes": "Unified PostingPipeline; role_k10 delivered as job_category.",
     "cadence": "Monthly",
@@ -687,7 +685,7 @@ const DATASETS = [
   {
     "id": "sentiment_review_trends",
     "name": "Sentiment review trends",
-    "path": "<YYYYMM>/sentiment_review_trends/sentiment_review_trends_*.parquet",
+    "path": "sentiment_review_trends/<YYYYMMDD>/sentiment_review_trends_*.parquet",
     "grain": "Company × region × country × state × metro_area × county × role_k10 × role_k50 × role_k150 × onet_code × month, with geography_grain in {county, state, region}",
     "notes": "Glassdoor star ratings (12-month rolling ReviewTrends), then privacy post-process: if num_reviews < 10, fine geo/occupation dims become 'undisclosed' and ratings are re-averaged weighted by num_reviews (rows kept). Coarser state/region cuts included in the same file via geography_grain. Review location *_v3, not company HQ.",
     "cadence": "Monthly",
@@ -818,7 +816,7 @@ const DATASETS = [
   {
     "id": "sentiment_individual_reviews",
     "name": "Sentiment individual reviews",
-    "path": "<YYYYMM>/sentiment_individual_reviews/sentiment_individual_reviews_*.parquet",
+    "path": "sentiment_individual_reviews/<YYYYMMDD>/sentiment_individual_reviews_*.parquet",
     "grain": "One row per Glassdoor review",
     "notes": "SFTP unload currently paused in perceiviq.py.",
     "cadence": "Monthly (paused)",
@@ -1019,7 +1017,7 @@ const DATASETS = [
   {
     "id": "sentiment_scores",
     "name": "Sentiment scores",
-    "path": "<YYYYMM>/sentiment_scores/sentiment_scores_*.parquet",
+    "path": "sentiment_scores/<YYYYMMDD>/sentiment_scores_*.parquet",
     "grain": "Monthly company × region × country × state × metro_area × county (per-month NLP v2 themes; review location geo, not HQ)",
     "notes": "Built with ReviewTrends (window=0) so each month uses only that month's reviews. Geography is Glassdoor review *_v3 location (same anchor as review trends), not company headquarters. Columns are confidence-weighted v2 theme scores (sentiment_{theme}). num_reviews is the in-month review count for the cell.",
     "cadence": "Monthly",
@@ -1305,7 +1303,7 @@ const DATASETS = [
   {
     "id": "individual_certifications",
     "name": "Individual certifications",
-    "path": "<YYYYMM>/individual_certifications/individual_certifications_*.parquet",
+    "path": "individual_certifications/<YYYYMMDD>/individual_certifications_*.parquet",
     "grain": "One row per certification on an in-scope profile",
     "notes": "SFTP unload paused — replaced by cert_dynamics aggregate.",
     "cadence": "Monthly (paused)",
@@ -1391,7 +1389,7 @@ const DATASETS = [
   {
     "id": "individual_courses",
     "name": "Individual courses",
-    "path": "<YYYYMM>/individual_courses/individual_courses_*.parquet",
+    "path": "individual_courses/<YYYYMMDD>/individual_courses_*.parquet",
     "grain": "One row per course on an in-scope profile",
     "notes": "SFTP unload paused — replaced by course_dynamics aggregate.",
     "cadence": "Monthly (paused)",
@@ -1437,7 +1435,7 @@ const DATASETS = [
   {
     "id": "cert_dynamics",
     "name": "Certification dynamics",
-    "path": "<YYYYMM>/cert_dynamics/cert_dynamics_*.parquet",
+    "path": "cert_dynamics/<YYYYMMDD>/cert_dynamics_*.parquet",
     "grain": "geography_grain × month × region/state/county/metro × role_k10 × onet × cert_k10 × cert_k50 × issuer",
     "notes": "Inflow by certification startdate (LinkedIn self-reported start; completion proxy). Attributed to an in-scope position active on startdate. Titles mapped to clusters; unmatched excluded. issuer from company_cleaned (fallback company). onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). geography_grain in {county, state, region}. Min cell size 10 → fine dims become 'undisclosed' (re-aggregated; rows not dropped).",
     "cadence": "Monthly",
@@ -1508,7 +1506,7 @@ const DATASETS = [
   {
     "id": "course_dynamics",
     "name": "Course dynamics",
-    "path": "<YYYYMM>/course_dynamics/course_dynamics_*.parquet",
+    "path": "course_dynamics/<YYYYMMDD>/course_dynamics_*.parquet",
     "grain": "geography_grain × region/state/county/metro × role_k10 × onet × course_k10 × course_k50 (no month — static stock)",
     "notes": "Static stock: courses have no earn dates; attributed to a current in-scope position (enddate null). Titles mapped to clusters; unmatched excluded. onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). geography_grain in {county, state, region}. Min cell size 10 → undisclosed (same privacy pattern as cert_dynamics). No issuer column.",
     "cadence": "Monthly",
@@ -1569,7 +1567,7 @@ const DATASETS = [
   {
     "id": "cert_coverage",
     "name": "Certification coverage rates",
-    "path": "<YYYYMM>/cert_coverage/cert_coverage_*.parquet",
+    "path": "cert_coverage/<YYYYMMDD>/cert_coverage_*.parquet",
     "grain": "One row per region",
     "notes": "Companion QA for cert_dynamics: title→cluster match rate and geo-attribution rate (among title-matched certs with a startdate), by region.",
     "cadence": "Monthly",
@@ -1620,7 +1618,7 @@ const DATASETS = [
   {
     "id": "course_coverage",
     "name": "Course coverage rates",
-    "path": "<YYYYMM>/course_coverage/course_coverage_*.parquet",
+    "path": "course_coverage/<YYYYMMDD>/course_coverage_*.parquet",
     "grain": "One row per region",
     "notes": "Companion QA for course_dynamics: title→cluster match rate and attribution to a current in-scope position, by region.",
     "cadence": "Monthly",
@@ -2005,7 +2003,7 @@ const DATASETS = [
     "id": "modeled_wage_file",
     "index": 16,
     "name": "Modeled wage file",
-    "path": "<YYYYMM>/occupation_geography_wages/",
+    "path": "occupation_geography_wages/<YYYYMMDD>/",
     "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation × geography (county FIPS preferred, else CBSA) × period",
     "notes": "Cadence: Monthly. Built from postings with non-null modeled salary and employer; geography requires a county or CBSA match. Active vs new flags expand postings across months between post and remove dates (6-month implied close when remove is null and 6 months after post is in the past).",
     "fields": [
@@ -2162,9 +2160,9 @@ const DATASETS = [
     "id": "unified_postings_weekly",
     "index": 18,
     "name": "Unified postings (weekly)",
-    "path": "<YYYYMMDD>/unified_postings/unified_postings_*.parquet",
+    "path": "unified_postings/<YYYYMMDD>/unified_postings_*.parquet",
     "grain": "One row per COSMOS unified job posting for US-headquartered in-scope companies",
-    "notes": "Start: `post_date >= 2021-05-01` Feed: Weekly (`perceiviq_weekly.py`), delivered Fridays under the daily batchtime folder Notes: Source is `POSTINGS_UNIFIED_NEW` (`output_new`). Location fields use location v3 (`metro_area` from `msa_v3`). Skills for these postings are in the companion weekly file (#14).",
+    "notes": "Start: `post_date >= 2021-05-01` Feed: Weekly (`perceiviq_weekly.py`), delivered Fridays under the daily batchtime folder Notes: Source is `POSTINGS_UNIFIED_NEW` (`output_new`). Location fields use location v3 (`metro_area` from `msa_v3`). Skills for these postings are in the companion weekly file (#14). SFTP layout: unified_postings/<YYYYMMDD>/ with Friday DAILY_BATCHTIME; folder also contains _SUCCESS.",
     "fields": [
       {
         "name": "job_id",
@@ -2242,7 +2240,6 @@ const DATASETS = [
         "description": "Role cluster at k150"
       },
       {
-        {
         "name": "onet_code",
         "type": "VARCHAR(256)",
         "description": "O*NET-SOC code from taxonomy id 61 via role_v3_id (role_k10000); same mapping as monthly workforce dynamics — not mapped_role→MAPPEDROLE2ONET2019"
@@ -2484,9 +2481,9 @@ const DATASETS = [
     "id": "unified_posting_skills_weekly",
     "index": 19,
     "name": "Unified posting skills (weekly)",
-    "path": "<YYYYMMDD>/unified_postings_skills/unified_postings_skills_*.parquet",
+    "path": "unified_postings_skills/<YYYYMMDD>/unified_postings_skills_*.parquet",
     "grain": "One row per skill extracted from a unified posting that is in the weekly postings delivery",
-    "notes": "Feed: Weekly (perceiviq_weekly.py), delivered Fridays. Skills from postings_unique_unified_skills_v3 with taxonomy v3 labels, skill_v3_id, and skill-tag flags. Restricted to job_ids in weekly unified postings.",
+    "notes": "Feed: Weekly (perceiviq_weekly.py), delivered Fridays. Skills from postings_extractedskill_unified_v3_1 with skill taxonomy v3.1 labels, skill_v3_1_id, and skill-tag flags (is_common, is_specialized, etc.). Restricted to job_ids in weekly unified postings. SFTP layout: unified_postings_skills/<YYYYMMDD>/ with Friday DAILY_BATCHTIME; folder also contains _SUCCESS.",
     "fields": [
       {
         "name": "job_id",
@@ -2499,9 +2496,9 @@ const DATASETS = [
         "description": "Raw extracted skill string"
       },
       {
-        "name": "skill_v3_id",
+        "name": "skill_v3_1_id",
         "type": "NUMBER(38,0)",
-        "description": "Leaf skill taxonomy v3 ID (stable numeric key)"
+        "description": "Leaf skill taxonomy v3.1 ID (stable numeric key)"
       },
       {
         "name": "skill_k35000",
