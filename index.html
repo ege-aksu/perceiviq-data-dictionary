@@ -2254,6 +2254,131 @@ const DATASETS = [
       }
     ],
     "cadence": "Weekly (Friday)"
+  },
+  {
+    "id": "ddn_onet_skill_categories",
+    "name": "ONET DDN skill categories",
+    "path": "ddn/<YYYYMMDD>/ONET_DDN_skill_categories_v2.csv",
+    "grain": "One row per ONET occupation × skill assigned to an importance category (top-N per category)",
+    "notes": "Cadence: As delivered (manual SFTP reference feed). DDN framework skill-importance categories for ONET occupations: Defining / Distinguishing / Necessary. File: ONET_DDN_skill_categories_v2.csv under ddn/<YYYYMMDD>/, with _SUCCESS written last.",
+    "cadence": "As delivered",
+    "fields": [
+      {
+        "name": "onet",
+        "type": "VARCHAR",
+        "description": "ONET occupation label / key used in the DDN tables"
+      },
+      {
+        "name": "occupation_name",
+        "type": "VARCHAR",
+        "description": "ONET occupation display name"
+      },
+      {
+        "name": "soc6d",
+        "type": "VARCHAR",
+        "description": "6-digit SOC code"
+      },
+      {
+        "name": "soc4d",
+        "type": "VARCHAR",
+        "description": "4-digit SOC code"
+      },
+      {
+        "name": "onet_code",
+        "type": "VARCHAR",
+        "description": "Full ONET-SOC code (e.g. 15-2051.00: Data Scientists)"
+      },
+      {
+        "name": "skill_importance",
+        "type": "VARCHAR",
+        "description": "Importance bucket: Defining, Distinguishing, or Necessary"
+      },
+      {
+        "name": "category_rank",
+        "type": "NUMBER",
+        "description": "Rank of the skill within its importance category for the occupation"
+      },
+      {
+        "name": "skill_v3_id",
+        "type": "NUMBER",
+        "description": "Skill taxonomy node ID"
+      },
+      {
+        "name": "skill",
+        "type": "VARCHAR",
+        "description": "Skill label (skill_k35000)"
+      },
+      {
+        "name": "cnt",
+        "type": "NUMBER",
+        "description": "Posting / skill count supporting the occupation×skill pair"
+      },
+      {
+        "name": "n_valid",
+        "type": "NUMBER",
+        "description": "Count of valid skill parses for the pair"
+      },
+      {
+        "name": "avg_relevance_valid",
+        "type": "FLOAT",
+        "description": "Average relevance among valid parses"
+      },
+      {
+        "name": "final_likelihood",
+        "type": "FLOAT",
+        "description": "DDN smoothed P(occupation | skill) likelihood"
+      },
+      {
+        "name": "ln_lift_k1500_shrunk",
+        "type": "FLOAT",
+        "description": "Shrunk log-lift at the ONET / k1500 grain"
+      },
+      {
+        "name": "lift_gap_vs_neighbors",
+        "type": "FLOAT",
+        "description": "Lift gap versus SOC neighbor occupations"
+      },
+      {
+        "name": "cnt_pct",
+        "type": "FLOAT",
+        "description": "Within-occupation percentile of cnt"
+      },
+      {
+        "name": "lift_pct",
+        "type": "FLOAT",
+        "description": "Within-occupation percentile of lift"
+      },
+      {
+        "name": "relevance_pct",
+        "type": "FLOAT",
+        "description": "Within-occupation percentile of relevance"
+      },
+      {
+        "name": "final_likelihood_pct",
+        "type": "FLOAT",
+        "description": "Within-occupation percentile of final_likelihood"
+      },
+      {
+        "name": "is_specialized",
+        "type": "BOOLEAN",
+        "description": "Skill tag: specialized"
+      },
+      {
+        "name": "is_common",
+        "type": "BOOLEAN",
+        "description": "Skill tag: common"
+      },
+      {
+        "name": "is_ai",
+        "type": "BOOLEAN",
+        "description": "Skill tag: AI-related"
+      },
+      {
+        "name": "skill_importance_rule",
+        "type": "VARCHAR",
+        "description": "Human-readable rule that assigned the skill_importance category"
+      }
+    ]
   }
 ];
 
