@@ -814,207 +814,6 @@ const DATASETS = [
     "index": 4
   },
   {
-    "id": "sentiment_individual_reviews",
-    "name": "Sentiment individual reviews",
-    "path": "sentiment_individual_reviews/<YYYYMMDD>/sentiment_individual_reviews_*.parquet",
-    "grain": "One row per Glassdoor review",
-    "notes": "SFTP unload currently paused in perceiviq.py.",
-    "cadence": "Monthly (paused)",
-    "fields": [
-      {
-        "name": "rcid",
-        "type": "NUMBER(38,0)",
-        "description": "Revelio company ID"
-      },
-      {
-        "name": "company",
-        "type": "VARCHAR(65535)",
-        "description": "Company name"
-      },
-      {
-        "name": "review_id",
-        "type": "NUMBER(38,0)",
-        "description": "Glassdoor review ID"
-      },
-      {
-        "name": "title_raw",
-        "type": "VARCHAR(65535)",
-        "description": "Raw job title on the review"
-      },
-      {
-        "name": "role_k10",
-        "type": "VARCHAR(65535)",
-        "description": "Role taxonomy k10"
-      },
-      {
-        "name": "role_k50",
-        "type": "VARCHAR(65535)",
-        "description": "Role taxonomy k50"
-      },
-      {
-        "name": "role_k150",
-        "type": "VARCHAR(65535)",
-        "description": "Role taxonomy k150"
-      },
-      {
-        "name": "seniority",
-        "type": "NUMBER(38,0)",
-        "description": "Seniority"
-      },
-      {
-        "name": "review_date_time",
-        "type": "TIMESTAMP_NTZ(9)",
-        "description": "Review timestamp"
-      },
-      {
-        "name": "location_raw",
-        "type": "VARCHAR(65535)",
-        "description": "Raw location text"
-      },
-      {
-        "name": "review_language_id",
-        "type": "VARCHAR(65535)",
-        "description": "Review language"
-      },
-      {
-        "name": "review_iscovid19",
-        "type": "BOOLEAN",
-        "description": "COVID-related review flag"
-      },
-      {
-        "name": "reviewer_current_job",
-        "type": "BOOLEAN",
-        "description": "Reviewer currently at company"
-      },
-      {
-        "name": "reviewer_employment_status",
-        "type": "VARCHAR(65535)",
-        "description": "Employment status"
-      },
-      {
-        "name": "reviewer_job_ending_year",
-        "type": "NUMBER(38,0)",
-        "description": "Job ending year, when present"
-      },
-      {
-        "name": "reviewer_length_of_employment",
-        "type": "NUMBER(38,0)",
-        "description": "Length of employment"
-      },
-      {
-        "name": "rating_overall",
-        "type": "NUMBER(38,0)",
-        "description": "Overall star rating"
-      },
-      {
-        "name": "rating_business_outlook",
-        "type": "VARCHAR(65535)",
-        "description": "Business outlook"
-      },
-      {
-        "name": "rating_career_opportunities",
-        "type": "FLOAT",
-        "description": "Career opportunities"
-      },
-      {
-        "name": "rating_ceo",
-        "type": "VARCHAR(65535)",
-        "description": "CEO approval"
-      },
-      {
-        "name": "rating_compensation_and_benefits",
-        "type": "FLOAT",
-        "description": "Comp & benefits"
-      },
-      {
-        "name": "rating_culture_and_values",
-        "type": "NUMBER(38,0)",
-        "description": "Culture & values"
-      },
-      {
-        "name": "rating_diversity_and_inclusion",
-        "type": "NUMBER(38,0)",
-        "description": "D&I"
-      },
-      {
-        "name": "rating_recommend_to_friend",
-        "type": "VARCHAR(65535)",
-        "description": "Recommend to friend"
-      },
-      {
-        "name": "rating_senior_leadership",
-        "type": "FLOAT",
-        "description": "Senior leadership"
-      },
-      {
-        "name": "rating_work_life_balance",
-        "type": "FLOAT",
-        "description": "Work-life balance"
-      },
-      {
-        "name": "review_summary",
-        "type": "VARCHAR(16777216)",
-        "description": "Review summary text"
-      },
-      {
-        "name": "review_advice",
-        "type": "VARCHAR(16777216)",
-        "description": "Advice to management"
-      },
-      {
-        "name": "review_pros",
-        "type": "VARCHAR(16777216)",
-        "description": "Pros text"
-      },
-      {
-        "name": "review_cons",
-        "type": "VARCHAR(16777216)",
-        "description": "Cons text"
-      },
-      {
-        "name": "review_count_helpful",
-        "type": "NUMBER(38,0)",
-        "description": "Helpful votes"
-      },
-      {
-        "name": "review_count_not_helpful",
-        "type": "NUMBER(38,0)",
-        "description": "Not-helpful votes"
-      },
-      {
-        "name": "region",
-        "type": "VARCHAR(65535)",
-        "description": "Review location region"
-      },
-      {
-        "name": "country",
-        "type": "VARCHAR(65535)",
-        "description": "Review location country"
-      },
-      {
-        "name": "state",
-        "type": "VARCHAR(65535)",
-        "description": "Review location state"
-      },
-      {
-        "name": "metro_area",
-        "type": "VARCHAR(65535)",
-        "description": "Review location metro"
-      },
-      {
-        "name": "ultimate_parent_rcid",
-        "type": "NUMBER(38,0)",
-        "description": "Ultimate parent RCID"
-      },
-      {
-        "name": "ultimate_parent_company_name",
-        "type": "VARCHAR(65535)",
-        "description": "Ultimate parent name"
-      }
-    ],
-    "index": 5
-  },
-  {
     "id": "sentiment_scores",
     "name": "Sentiment scores",
     "path": "sentiment_scores/<YYYYMMDD>/sentiment_scores_*.parquet",
@@ -1298,139 +1097,7 @@ const DATASETS = [
         "description": "Number of reviews in the company-geo-month cell"
       }
     ],
-    "index": 6
-  },
-  {
-    "id": "individual_certifications",
-    "name": "Individual certifications",
-    "path": "individual_certifications/<YYYYMMDD>/individual_certifications_*.parquet",
-    "grain": "One row per certification on an in-scope profile",
-    "notes": "SFTP unload paused — replaced by cert_dynamics aggregate.",
-    "cadence": "Monthly (paused)",
-    "fields": [
-      {
-        "name": "user_id",
-        "type": "NUMBER(38,0)",
-        "description": "Profile user ID"
-      },
-      {
-        "name": "uri",
-        "type": "VARCHAR(65535)",
-        "description": "Certification URI"
-      },
-      {
-        "name": "order_in_profile",
-        "type": "NUMBER(38,0)",
-        "description": "Order on profile"
-      },
-      {
-        "name": "cert_name",
-        "type": "VARCHAR(16777216)",
-        "description": "Raw certification title"
-      },
-      {
-        "name": "cert_url",
-        "type": "VARCHAR(16777216)",
-        "description": "Certification URL"
-      },
-      {
-        "name": "cert_id",
-        "type": "VARCHAR(16777216)",
-        "description": "External certification ID"
-      },
-      {
-        "name": "company",
-        "type": "VARCHAR(16777216)",
-        "description": "Issuer company raw"
-      },
-      {
-        "name": "company_cleaned",
-        "type": "VARCHAR(16777216)",
-        "description": "Issuer company cleaned"
-      },
-      {
-        "name": "company_url",
-        "type": "VARCHAR(65535)",
-        "description": "Issuer URL"
-      },
-      {
-        "name": "startdate_str",
-        "type": "VARCHAR(65535)",
-        "description": "Start date string"
-      },
-      {
-        "name": "startdate",
-        "type": "DATE",
-        "description": "Parsed start date (completion proxy)"
-      },
-      {
-        "name": "enddate_str",
-        "type": "VARCHAR(65535)",
-        "description": "End date string"
-      },
-      {
-        "name": "enddate",
-        "type": "DATE",
-        "description": "Parsed end date"
-      },
-      {
-        "name": "description",
-        "type": "VARCHAR(16777216)",
-        "description": "Description"
-      },
-      {
-        "name": "updated_dt",
-        "type": "TIMESTAMP_NTZ(9)",
-        "description": "Record update timestamp"
-      }
-    ],
-    "index": 7
-  },
-  {
-    "id": "individual_courses",
-    "name": "Individual courses",
-    "path": "individual_courses/<YYYYMMDD>/individual_courses_*.parquet",
-    "grain": "One row per course on an in-scope profile",
-    "notes": "SFTP unload paused — replaced by course_dynamics aggregate.",
-    "cadence": "Monthly (paused)",
-    "fields": [
-      {
-        "name": "user_id",
-        "type": "NUMBER(38,0)",
-        "description": "Profile user ID"
-      },
-      {
-        "name": "uri",
-        "type": "VARCHAR(65535)",
-        "description": "Course URI"
-      },
-      {
-        "name": "order_in_profile",
-        "type": "NUMBER(38,0)",
-        "description": "Order on profile"
-      },
-      {
-        "name": "course_name",
-        "type": "VARCHAR(16777216)",
-        "description": "Course title"
-      },
-      {
-        "name": "course_number",
-        "type": "VARCHAR(16777216)",
-        "description": "Course number / code"
-      },
-      {
-        "name": "course_association",
-        "type": "VARCHAR(16777216)",
-        "description": "Associated school / org"
-      },
-      {
-        "name": "updated_dt",
-        "type": "TIMESTAMP_NTZ(9)",
-        "description": "Record update timestamp"
-      }
-    ],
-    "index": 8
+    "index": 5
   },
   {
     "id": "cert_dynamics",
@@ -1501,7 +1168,7 @@ const DATASETS = [
         "description": "Number of new certifications (inflow) in the cell"
       }
     ],
-    "index": 9
+    "index": 6
   },
   {
     "id": "course_dynamics",
@@ -1562,7 +1229,7 @@ const DATASETS = [
         "description": "Number of courses in the cell (stock)"
       }
     ],
-    "index": 10
+    "index": 7
   },
   {
     "id": "cert_coverage",
@@ -1613,7 +1280,7 @@ const DATASETS = [
         "description": "100 * n_geo_attributed / n_title_matched_with_startdate"
       }
     ],
-    "index": 11
+    "index": 8
   },
   {
     "id": "course_coverage",
@@ -1654,11 +1321,11 @@ const DATASETS = [
         "description": "100 * n_geo_attributed / n_title_matched"
       }
     ],
-    "index": 12
+    "index": 9
   },
   {
     "id": "role_taxonomy_soc_crosswalk",
-    "index": 13,
+    "index": 10,
     "name": "Role taxonomy ↔ SOC crosswalk",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "One row per `role_v3_id`, joining the Revelio role taxonomy (taxonomy_id = 0) to the SOC / O*NET custom taxonomy (taxonomy_id = 61, job_taxonomy_version = 3.2.0)",
@@ -1804,11 +1471,11 @@ const DATASETS = [
   },
   {
     "id": "company_directory",
-    "index": 14,
+    "index": 11,
     "name": "Company directory",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Flat company reference snapshot from `full_company_ref_monthly`",
-    "notes": "Cadence: Quarterly first-phase snapshot. The monthly SFTP company_ref now ships this same schema for the in-scope delivery universe.",
+    "notes": "Cadence: Monthly. The monthly SFTP company_ref now ships this same schema for the in-scope delivery universe.",
     "fields": [
       {
         "name": "rcid",
@@ -1931,11 +1598,11 @@ const DATASETS = [
         "description": "public if dashboard ent_type = PUB; otherwise private"
       }
     ],
-    "cadence": "Annual"
+    "cadence": "Monthly"
   },
   {
     "id": "skills_taxonomy",
-    "index": 15,
+    "index": 12,
     "name": "Skills taxonomy",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "One row per skill node in the default skill taxonomy (`taxonomy_id = 0`) from `custom_skills_taxonomy_v3_overall_latest`",
@@ -2001,7 +1668,7 @@ const DATASETS = [
   },
   {
     "id": "modeled_wage_file",
-    "index": 16,
+    "index": 13,
     "name": "Modeled wage file",
     "path": "occupation_geography_wages/<YYYYMMDD>/",
     "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation × geography (county FIPS preferred, else CBSA) × period",
@@ -2122,11 +1789,11 @@ const DATASETS = [
   },
   {
     "id": "wages_raw",
-    "index": 17,
+    "index": 14,
     "name": "Raw wages file",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Posting date × metro_area × NAICS × O*NET raw salary figures",
-    "notes": "Delivered under first_phase_deliveries/{batchtime}/ as wages_raw. Companion to the modeled occupation_geography_wages file. Uses raw posted salaries (not Revelio modeled wages). Exact measure columns follow the delivered extract; grain dimensions below.",
+    "notes": "Cadence: Annual. Delivered under first_phase_deliveries/{batchtime}/ as wages_raw. Companion to the modeled occupation_geography_wages file. Uses raw posted salaries (not Revelio modeled wages). Exact measure columns follow the delivered extract; grain dimensions below.",
     "fields": [
       {
         "name": "post_date",
@@ -2154,11 +1821,11 @@ const DATASETS = [
         "description": "Raw posted salary figures at this grain — not modeled wage estimates"
       }
     ],
-    "cadence": "Monthly"
+    "cadence": "Annual"
   },
   {
     "id": "unified_postings_weekly",
-    "index": 18,
+    "index": 15,
     "name": "Unified postings (weekly)",
     "path": "unified_postings/<YYYYMMDD>/unified_postings_*.parquet",
     "grain": "One row per COSMOS unified job posting for US-headquartered in-scope companies",
@@ -2479,7 +2146,7 @@ const DATASETS = [
   },
   {
     "id": "unified_posting_skills_weekly",
-    "index": 19,
+    "index": 16,
     "name": "Unified posting skills (weekly)",
     "path": "unified_postings_skills/<YYYYMMDD>/unified_postings_skills_*.parquet",
     "grain": "One row per skill extracted from a unified posting that is in the weekly postings delivery",
