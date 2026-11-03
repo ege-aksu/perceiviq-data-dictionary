@@ -169,7 +169,7 @@
       <strong>SFTP layout:</strong> <code>&lt;dataset&gt;/&lt;YYYYMMDD&gt;/</code>
       (monthly date = batch month + 15th; weekly date = Friday batch date), plus <code>_SUCCESS</code>.
       Weekly posting skills use skill taxonomy <strong>v3.1</strong> (<code>skill_v3_1_id</code>);
-      monthly skill dynamics also use v3.1. Last updated 2026-10-29.
+      monthly skill dynamics also use v3.1. Last updated 2026-11-03.
       Sentiment scores: per-month confidence-weighted v2 NLP themes
       (sentiment_{theme}) at review location geo (region/country/state/metro/county), not HQ.
 </p>
@@ -357,7 +357,7 @@ const DATASETS = [
         "description": "public if dashboard ent_type = PUB; otherwise private"
       }
     ],
-    "index": 0
+    "index": 1
   },
   {
     "id": "workforce_dynamics",
@@ -473,7 +473,7 @@ const DATASETS = [
         "description": "Prestige denominator / weight"
       }
     ],
-    "index": 1
+    "index": 2
   },
   {
     "id": "skill_dynamics",
@@ -594,7 +594,7 @@ const DATASETS = [
         "description": "External skill outflow"
       }
     ],
-    "index": 2
+    "index": 3
   },
   {
     "id": "postings_dynamics",
@@ -690,7 +690,7 @@ const DATASETS = [
         "description": "Expected hires inferred from unified postings (aggregate)"
       }
     ],
-    "index": 3
+    "index": 4
   },
   {
     "id": "sentiment_review_trends",
@@ -821,7 +821,7 @@ const DATASETS = [
         "description": "Review count in the cell (after privacy re-aggregation)"
       }
     ],
-    "index": 4
+    "index": 5
   },
   {
     "id": "sentiment_scores",
@@ -1107,7 +1107,7 @@ const DATASETS = [
         "description": "Number of reviews in the company-geo-month cell"
       }
     ],
-    "index": 5
+    "index": 6
   },
   {
     "id": "cert_dynamics",
@@ -1178,7 +1178,7 @@ const DATASETS = [
         "description": "Number of new certifications (inflow) in the cell"
       }
     ],
-    "index": 6
+    "index": 7
   },
   {
     "id": "course_dynamics",
@@ -1239,7 +1239,7 @@ const DATASETS = [
         "description": "Number of courses in the cell (stock)"
       }
     ],
-    "index": 7
+    "index": 8
   },
   {
     "id": "cert_coverage",
@@ -1290,7 +1290,7 @@ const DATASETS = [
         "description": "100 * n_geo_attributed / n_title_matched_with_startdate"
       }
     ],
-    "index": 8
+    "index": 9
   },
   {
     "id": "course_coverage",
@@ -1331,11 +1331,11 @@ const DATASETS = [
         "description": "100 * n_geo_attributed / n_title_matched"
       }
     ],
-    "index": 9
+    "index": 10
   },
   {
     "id": "role_taxonomy_soc_crosswalk",
-    "index": 10,
+    "index": 11,
     "name": "Role taxonomy ↔ SOC crosswalk",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "One row per `role_v3_id`, joining the Revelio role taxonomy (taxonomy_id = 0) to the SOC / O*NET custom taxonomy (taxonomy_id = 61, job_taxonomy_version = 3.2.0)",
@@ -1480,8 +1480,99 @@ const DATASETS = [
     "cadence": "Annual"
   },
   {
+    "id": "role_cip2020_crosswalk",
+    "index": 12,
+    "name": "Role ↔ CIP-2020 crosswalk",
+    "path": "role_cip2020_crosswalk/<YYYYMMDD>/",
+    "grain": "One row per role_v3_id × CIP-2020 code, from education → first subsequent employment transitions",
+    "notes": "Cadence: Quarterly (as delivered). Many-to-many empirical map of Revelio roles to CIP-2020 fields of study. For each education record, degree/field text is mapped to CIP-2020; the person's first subsequent job (earliest position starting on/after education end date, within a configured window) supplies role_v3_id. Counts/shares are built from those transitions. role_k10000_name is for readability only — analytic grain is role_v3_id × CIP. Use n_users_cip / n_transitions_cip / w_transitions_cip as CIP denominators when rebuilding shares or rolling roles up; summing n_users across multiple role_v3_id values under a broader occupation can double-count people. SFTP layout: role_cip2020_crosswalk/<YYYYMMDD>/ with parquet + csv, _SUCCESS written last.",
+    "fields": [
+      {
+        "name": "cip2020_code",
+        "type": "VARCHAR",
+        "description": "CIP-2020 field-of-study code from the education field-mapping model"
+      },
+      {
+        "name": "cip2020_title",
+        "type": "VARCHAR",
+        "description": "Most common mapped field title for that CIP among supporting transitions"
+      },
+      {
+        "name": "role_v3_id",
+        "type": "NUMBER",
+        "description": "Revelio role ID of the first subsequent job after the education record"
+      },
+      {
+        "name": "role_k10000_name",
+        "type": "VARCHAR",
+        "description": "O*NET-style role title for interpretability (not the analytic grain)"
+      },
+      {
+        "name": "role_taxonomy_major_version",
+        "type": "NUMBER",
+        "description": "Major version of the role taxonomy (3 for role_v3)"
+      },
+      {
+        "name": "role_taxonomy_minor_version",
+        "type": "NUMBER",
+        "description": "Minor version of the role taxonomy slice used for role labels"
+      },
+      {
+        "name": "n_transitions",
+        "type": "NUMBER",
+        "description": "Education→first-job pairs supporting this CIP×role link"
+      },
+      {
+        "name": "n_users",
+        "type": "NUMBER",
+        "description": "Distinct people among those transitions"
+      },
+      {
+        "name": "w_transitions",
+        "type": "FLOAT",
+        "description": "Transitions weighted by field-mapping probability (1 when missing)"
+      },
+      {
+        "name": "n_transitions_cip",
+        "type": "NUMBER",
+        "description": "Total education→first-job pairs for this CIP across all roles"
+      },
+      {
+        "name": "n_users_cip",
+        "type": "NUMBER",
+        "description": "Distinct people with a transition for this CIP across all roles"
+      },
+      {
+        "name": "w_transitions_cip",
+        "type": "FLOAT",
+        "description": "CIP-level weighted transition total across all roles"
+      },
+      {
+        "name": "avg_confidence",
+        "type": "FLOAT",
+        "description": "Average field-mapping confidence/probability for the CIP assignment"
+      },
+      {
+        "name": "p_role_given_cip",
+        "type": "FLOAT",
+        "description": "Share of this CIP's (weighted) transitions that go to this role"
+      },
+      {
+        "name": "p_cip_given_role",
+        "type": "FLOAT",
+        "description": "Share of this role's (weighted) transitions that come from this CIP"
+      },
+      {
+        "name": "role_prevalence_shrunk",
+        "type": "FLOAT",
+        "description": "p_role_given_cip shrunk toward the overall role rate so sparse pairs are less overstated"
+      }
+    ],
+    "cadence": "Quarterly"
+  },
+  {
     "id": "company_directory",
-    "index": 11,
+    "index": 13,
     "name": "Company directory",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Flat company reference snapshot from `full_company_ref_monthly`",
@@ -1622,7 +1713,7 @@ const DATASETS = [
   },
   {
     "id": "skills_taxonomy",
-    "index": 12,
+    "index": 14,
     "name": "Skills taxonomy",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "One row per skill node in the default skill taxonomy (`taxonomy_id = 0`) from `custom_skills_taxonomy_v3_overall_latest`",
@@ -1688,7 +1779,7 @@ const DATASETS = [
   },
   {
     "id": "modeled_wage_file",
-    "index": 13,
+    "index": 15,
     "name": "Modeled wage file",
     "path": "occupation_geography_wages/<YYYYMMDD>/",
     "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation × geography (county FIPS preferred, else CBSA) × period",
@@ -1809,7 +1900,7 @@ const DATASETS = [
   },
   {
     "id": "wages_raw",
-    "index": 14,
+    "index": 16,
     "name": "Raw wages file",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Posting date × metro_area × NAICS × O*NET raw salary figures",
@@ -1845,7 +1936,7 @@ const DATASETS = [
   },
   {
     "id": "unified_postings_weekly",
-    "index": 15,
+    "index": 17,
     "name": "Unified postings (weekly)",
     "path": "unified_postings/<YYYYMMDD>/unified_postings_*.parquet",
     "grain": "One row per COSMOS unified job posting for US-headquartered in-scope companies",
@@ -2166,7 +2257,7 @@ const DATASETS = [
   },
   {
     "id": "unified_posting_skills_weekly",
-    "index": 16,
+    "index": 18,
     "name": "Unified posting skills (weekly)",
     "path": "unified_postings_skills/<YYYYMMDD>/unified_postings_skills_*.parquet",
     "grain": "One row per skill extracted from a unified posting that is in the weekly postings delivery",
@@ -2389,7 +2480,7 @@ const DATASETS = [
         "description": "Human-readable rule that assigned the skill_importance category"
       }
     ],
-    "index": 17
+    "index": 19
   }
 ];
 
