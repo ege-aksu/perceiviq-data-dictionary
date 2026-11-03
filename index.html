@@ -1485,7 +1485,7 @@ const DATASETS = [
     "name": "Role ↔ CIP-2020 crosswalk",
     "path": "role_cip2020_crosswalk/<YYYYMMDD>/",
     "grain": "One row per role_v3_id × CIP-2020 code, from education → first subsequent employment transitions",
-    "notes": "Cadence: Quarterly (as delivered). Many-to-many empirical map of Revelio roles to CIP-2020 fields of study. For each education record, degree/field text is mapped to CIP-2020; the person's first subsequent job (earliest position starting on/after education end date, within a configured window) supplies role_v3_id. Counts/shares are built from those transitions. role_k10000_name is for readability only — analytic grain is role_v3_id × CIP. n_transitions = education→first-job pairs for that CIP×role; n_users = distinct people behind those pairs (n_users can be < n_transitions if one person contributes multiple education→job pairs). n_transitions_cip / n_users_cip are the same ideas at CIP level across all roles — use as denominators when rebuilding shares. Example: Alex 1 CS→role100, Blair 2 CS→role100, Casey 1 CS→role200 ⇒ CS×role100 has n_transitions=3, n_users=2; CIP totals are n_transitions_cip=4, n_users_cip=3. w_transitions / w_transitions_cip are transition counts weighted down when CIP assignment probability is uncertain. Summing n_users across multiple role_v3_id values under a broader occupation can double-count people. SFTP layout: role_cip2020_crosswalk/<YYYYMMDD>/ with parquet + csv, _SUCCESS written last.",
+    "notes": "Cadence: Annual. Many-to-many empirical map of Revelio roles to CIP-2020 fields of study. For each education record, degree/field text is mapped to CIP-2020; the person's first subsequent job (earliest position starting on/after education end date, within a configured window) supplies role_v3_id. Counts/shares are built from those transitions. role_k10000_name is for readability only — analytic grain is role_v3_id × CIP. n_transitions = education→first-job pairs for that CIP×role; n_users = distinct people behind those pairs (n_users can be < n_transitions if one person contributes multiple education→job pairs). n_transitions_cip / n_users_cip are the same ideas at CIP level across all roles — use as denominators when rebuilding shares. Example: Alex 1 CS→role100, Blair 2 CS→role100, Casey 1 CS→role200 ⇒ CS×role100 has n_transitions=3, n_users=2; CIP totals are n_transitions_cip=4, n_users_cip=3. w_transitions / w_transitions_cip are transition counts weighted down when CIP assignment probability is uncertain. Summing n_users across multiple role_v3_id values under a broader occupation can double-count people. SFTP layout: role_cip2020_crosswalk/<YYYYMMDD>/ with parquet + csv, _SUCCESS written last.",
     "fields": [
       {
         "name": "cip2020_code",
@@ -1568,7 +1568,7 @@ const DATASETS = [
         "description": "p_role_given_cip shrunk toward the overall role rate so sparse pairs are less overstated"
       }
     ],
-    "cadence": "Quarterly"
+    "cadence": "Annual"
   },
   {
     "id": "company_directory",
