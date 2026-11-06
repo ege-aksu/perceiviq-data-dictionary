@@ -169,7 +169,7 @@
       <strong>SFTP layout:</strong> <code>&lt;dataset&gt;/&lt;YYYYMMDD&gt;/</code>
       (monthly date = batch month + 15th; weekly date = Friday batch date), plus <code>_SUCCESS</code>.
       Weekly posting skills use skill taxonomy <strong>v3.1</strong> (<code>skill_v3_1_id</code>);
-      monthly skill dynamics also use v3.1. Last updated 2026-11-03.
+      monthly skill dynamics also use v3.1. Last updated 2026-11-06.
       Sentiment scores: per-month confidence-weighted v2 NLP themes
       (sentiment_{theme}) at review location geo (region/country/state/metro/county), not HQ.
 </p>
@@ -1481,11 +1481,10 @@ const DATASETS = [
   },
   {
     "id": "role_cip2020_crosswalk",
-    "index": 12,
     "name": "Role ↔ CIP-2020 crosswalk",
     "path": "role_cip2020_crosswalk/<YYYYMMDD>/",
-    "grain": "One row per role_v3_id × CIP-2020 code, from education → first subsequent employment transitions",
-    "notes": "Cadence: Annual. Many-to-many empirical map of Revelio roles to CIP-2020 fields of study. For each education record, degree/field text is mapped to CIP-2020; the person's first subsequent job (earliest position starting on/after education end date, within a configured window) supplies role_v3_id. Counts/shares are built from those transitions. role_k10000_name is for readability only — analytic grain is role_v3_id × CIP. n_transitions = education→first-job pairs for that CIP×role; n_users = distinct people behind those pairs (n_users can be < n_transitions if one person contributes multiple education→job pairs). n_transitions_cip / n_users_cip are the same ideas at CIP level across all roles — use as denominators when rebuilding shares. Example: Alex 1 CS→role100, Blair 2 CS→role100, Casey 1 CS→role200 ⇒ CS×role100 has n_transitions=3, n_users=2; CIP totals are n_transitions_cip=4, n_users_cip=3. w_transitions / w_transitions_cip are transition counts weighted down when CIP assignment probability is uncertain. Summing n_users across multiple role_v3_id values under a broader occupation can double-count people. SFTP layout: role_cip2020_crosswalk/<YYYYMMDD>/ with parquet + csv, _SUCCESS written last.",
+    "grain": "One row per role_v3_id × CIP-2020 code (US first-job population)",
+    "notes": "Cadence: Annual. Population: US first-job country. Education end dates from 2010-01-01 onward. First subsequent job = earliest position starting on/after education end and within 10 years. Multiple field-mapping hits for the same education×CIP are collapsed to one transition before counting. Pairs with fewer than 20 distinct users are dropped. n_users_cip / n_users_role (and transition/weighted analogs) are full population-cut denominators so shares remain rebuildable after the support floor. Do not SUM n_users_cip across rows (CIP total is repeated per role). Short certificates are not a separate coded award level in source data. role_k10000_name is for readability only. SFTP: parquet + csv with _SUCCESS last.",
     "fields": [
       {
         "name": "cip2020_code",
@@ -1520,7 +1519,7 @@ const DATASETS = [
       {
         "name": "n_transitions",
         "type": "NUMBER",
-        "description": "Education→first-job pairs supporting this CIP×role link (can exceed n_users if one person contributes multiple pairs)"
+        "description": "Education→first-job pairs for this CIP×role after collapsing duplicate CIP hits on the same education (can still exceed n_users if one person has multiple education records)"
       },
       {
         "name": "n_users",
@@ -1535,17 +1534,32 @@ const DATASETS = [
       {
         "name": "n_transitions_cip",
         "type": "NUMBER",
-        "description": "Total education→first-job pairs for this CIP across all roles (denominator for transition-based shares)"
+        "description": "Total education→first-job pairs for this CIP across all roles in the population cut (denominator)"
       },
       {
         "name": "n_users_cip",
         "type": "NUMBER",
-        "description": "Distinct people with a transition for this CIP across all roles (denominator for person-based shares)"
+        "description": "Distinct people with a transition for this CIP across all roles in the population cut (denominator). Repeated on every role row for that CIP — do not SUM across rows."
       },
       {
         "name": "w_transitions_cip",
         "type": "FLOAT",
         "description": "CIP-level weighted transition total across all roles"
+      },
+      {
+        "name": "n_transitions_role",
+        "type": "NUMBER",
+        "description": "Total education→first-job pairs for this role across all CIPs in the population cut (denominator for rebuilding p_cip_given_role)"
+      },
+      {
+        "name": "n_users_role",
+        "type": "NUMBER",
+        "description": "Distinct people with a transition into this role across all CIPs in the population cut"
+      },
+      {
+        "name": "w_transitions_role",
+        "type": "FLOAT",
+        "description": "Role-level weighted transition total across all CIPs"
       },
       {
         "name": "avg_confidence",
@@ -1568,11 +1582,234 @@ const DATASETS = [
         "description": "p_role_given_cip shrunk toward the overall role rate so sparse pairs are less overstated"
       }
     ],
-    "cadence": "Annual"
+    "cadence": "Annual",
+    "index": 12
+  },
+  {
+    "id": "role_cip2020_crosswalk_by_award",
+    "name": "Role ↔ CIP-2020 crosswalk by award level",
+    "path": "role_cip2020_crosswalk_by_award/<YYYYMMDD>/",
+    "grain": "One row per role_v3_id × CIP-2020 × award_level_band (US first-job population)",
+    "notes": "Cadence: Annual. Population: US first-job country. Education end dates from 2010-01-01 onward. First subsequent job = earliest position starting on/after education end and within 10 years. Multiple field-mapping hits for the same education×CIP are collapsed to one transition before counting. Pairs with fewer than 20 distinct users are dropped. n_users_cip / n_users_role (and transition/weighted analogs) are full population-cut denominators so shares remain rebuildable after the support floor. Do not SUM n_users_cip across rows (CIP total is repeated per role). Short certificates are not a separate coded award level in source data. role_k10000_name is for readability only. SFTP: parquet + csv with _SUCCESS last. award_level_band from degree_level: high_school / associate / bachelor / graduate / unknown_or_other (certificates usually unknown_or_other).",
+    "fields": [
+      {
+        "name": "cip2020_code",
+        "type": "VARCHAR",
+        "description": "CIP-2020 field-of-study code from the education field-mapping model"
+      },
+      {
+        "name": "cip2020_title",
+        "type": "VARCHAR",
+        "description": "Most common mapped field title for that CIP among supporting transitions"
+      },
+      {
+        "name": "role_v3_id",
+        "type": "NUMBER",
+        "description": "Revelio role ID of the first subsequent job after the education record"
+      },
+      {
+        "name": "role_k10000_name",
+        "type": "VARCHAR",
+        "description": "O*NET-style role title for interpretability (not the analytic grain)"
+      },
+      {
+        "name": "award_level_band",
+        "type": "VARCHAR",
+        "description": "Award band: high_school, associate, bachelor, graduate, unknown_or_other"
+      },
+      {
+        "name": "role_taxonomy_major_version",
+        "type": "NUMBER",
+        "description": "Major version of the role taxonomy (3 for role_v3)"
+      },
+      {
+        "name": "role_taxonomy_minor_version",
+        "type": "NUMBER",
+        "description": "Minor version of the role taxonomy slice used for role labels"
+      },
+      {
+        "name": "n_transitions",
+        "type": "NUMBER",
+        "description": "Education→first-job pairs for this CIP×role after collapsing duplicate CIP hits on the same education (can still exceed n_users if one person has multiple education records)"
+      },
+      {
+        "name": "n_users",
+        "type": "NUMBER",
+        "description": "Distinct people behind those transitions for this CIP×role link"
+      },
+      {
+        "name": "w_transitions",
+        "type": "FLOAT",
+        "description": "n_transitions weighted by field-mapping probability (1 when missing)"
+      },
+      {
+        "name": "n_transitions_cip",
+        "type": "NUMBER",
+        "description": "Total education→first-job pairs for this CIP across all roles in the population cut (denominator)"
+      },
+      {
+        "name": "n_users_cip",
+        "type": "NUMBER",
+        "description": "Distinct people with a transition for this CIP across all roles in the population cut (denominator). Repeated on every role row for that CIP — do not SUM across rows."
+      },
+      {
+        "name": "w_transitions_cip",
+        "type": "FLOAT",
+        "description": "CIP-level weighted transition total across all roles"
+      },
+      {
+        "name": "n_transitions_role",
+        "type": "NUMBER",
+        "description": "Total education→first-job pairs for this role across all CIPs in the population cut (denominator for rebuilding p_cip_given_role)"
+      },
+      {
+        "name": "n_users_role",
+        "type": "NUMBER",
+        "description": "Distinct people with a transition into this role across all CIPs in the population cut"
+      },
+      {
+        "name": "w_transitions_role",
+        "type": "FLOAT",
+        "description": "Role-level weighted transition total across all CIPs"
+      },
+      {
+        "name": "avg_confidence",
+        "type": "FLOAT",
+        "description": "Average field-mapping confidence/probability for the CIP assignment"
+      },
+      {
+        "name": "p_role_given_cip",
+        "type": "FLOAT",
+        "description": "Share of this CIP's (weighted) transitions that go to this role"
+      },
+      {
+        "name": "p_cip_given_role",
+        "type": "FLOAT",
+        "description": "Share of this role's (weighted) transitions that come from this CIP"
+      },
+      {
+        "name": "role_prevalence_shrunk",
+        "type": "FLOAT",
+        "description": "p_role_given_cip shrunk toward the overall role rate so sparse pairs are less overstated"
+      }
+    ],
+    "cadence": "Annual",
+    "index": 13
+  },
+  {
+    "id": "role_cip2020_crosswalk_by_grad_year",
+    "name": "Role ↔ CIP-2020 crosswalk by graduation-year band",
+    "path": "role_cip2020_crosswalk_by_grad_year/<YYYYMMDD>/",
+    "grain": "One row per role_v3_id × CIP-2020 × grad_year_band (US first-job population)",
+    "notes": "Cadence: Annual. Population: US first-job country. Education end dates from 2010-01-01 onward. First subsequent job = earliest position starting on/after education end and within 10 years. Multiple field-mapping hits for the same education×CIP are collapsed to one transition before counting. Pairs with fewer than 20 distinct users are dropped. n_users_cip / n_users_role (and transition/weighted analogs) are full population-cut denominators so shares remain rebuildable after the support floor. Do not SUM n_users_cip across rows (CIP total is repeated per role). Short certificates are not a separate coded award level in source data. role_k10000_name is for readability only. SFTP: parquet + csv with _SUCCESS last. grad_year_band from education end date: 2010_2014 / 2015_2019 / 2020_plus (and before_2010 if present).",
+    "fields": [
+      {
+        "name": "cip2020_code",
+        "type": "VARCHAR",
+        "description": "CIP-2020 field-of-study code from the education field-mapping model"
+      },
+      {
+        "name": "cip2020_title",
+        "type": "VARCHAR",
+        "description": "Most common mapped field title for that CIP among supporting transitions"
+      },
+      {
+        "name": "role_v3_id",
+        "type": "NUMBER",
+        "description": "Revelio role ID of the first subsequent job after the education record"
+      },
+      {
+        "name": "role_k10000_name",
+        "type": "VARCHAR",
+        "description": "O*NET-style role title for interpretability (not the analytic grain)"
+      },
+      {
+        "name": "grad_year_band",
+        "type": "VARCHAR",
+        "description": "Graduation-year band from education end date: before_2010, 2010_2014, 2015_2019, 2020_plus"
+      },
+      {
+        "name": "role_taxonomy_major_version",
+        "type": "NUMBER",
+        "description": "Major version of the role taxonomy (3 for role_v3)"
+      },
+      {
+        "name": "role_taxonomy_minor_version",
+        "type": "NUMBER",
+        "description": "Minor version of the role taxonomy slice used for role labels"
+      },
+      {
+        "name": "n_transitions",
+        "type": "NUMBER",
+        "description": "Education→first-job pairs for this CIP×role after collapsing duplicate CIP hits on the same education (can still exceed n_users if one person has multiple education records)"
+      },
+      {
+        "name": "n_users",
+        "type": "NUMBER",
+        "description": "Distinct people behind those transitions for this CIP×role link"
+      },
+      {
+        "name": "w_transitions",
+        "type": "FLOAT",
+        "description": "n_transitions weighted by field-mapping probability (1 when missing)"
+      },
+      {
+        "name": "n_transitions_cip",
+        "type": "NUMBER",
+        "description": "Total education→first-job pairs for this CIP across all roles in the population cut (denominator)"
+      },
+      {
+        "name": "n_users_cip",
+        "type": "NUMBER",
+        "description": "Distinct people with a transition for this CIP across all roles in the population cut (denominator). Repeated on every role row for that CIP — do not SUM across rows."
+      },
+      {
+        "name": "w_transitions_cip",
+        "type": "FLOAT",
+        "description": "CIP-level weighted transition total across all roles"
+      },
+      {
+        "name": "n_transitions_role",
+        "type": "NUMBER",
+        "description": "Total education→first-job pairs for this role across all CIPs in the population cut (denominator for rebuilding p_cip_given_role)"
+      },
+      {
+        "name": "n_users_role",
+        "type": "NUMBER",
+        "description": "Distinct people with a transition into this role across all CIPs in the population cut"
+      },
+      {
+        "name": "w_transitions_role",
+        "type": "FLOAT",
+        "description": "Role-level weighted transition total across all CIPs"
+      },
+      {
+        "name": "avg_confidence",
+        "type": "FLOAT",
+        "description": "Average field-mapping confidence/probability for the CIP assignment"
+      },
+      {
+        "name": "p_role_given_cip",
+        "type": "FLOAT",
+        "description": "Share of this CIP's (weighted) transitions that go to this role"
+      },
+      {
+        "name": "p_cip_given_role",
+        "type": "FLOAT",
+        "description": "Share of this role's (weighted) transitions that come from this CIP"
+      },
+      {
+        "name": "role_prevalence_shrunk",
+        "type": "FLOAT",
+        "description": "p_role_given_cip shrunk toward the overall role rate so sparse pairs are less overstated"
+      }
+    ],
+    "cadence": "Annual",
+    "index": 14
   },
   {
     "id": "company_directory",
-    "index": 13,
+    "index": 15,
     "name": "Company directory",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Flat company reference snapshot from `full_company_ref_monthly`",
@@ -1713,7 +1950,7 @@ const DATASETS = [
   },
   {
     "id": "skills_taxonomy",
-    "index": 14,
+    "index": 16,
     "name": "Skills taxonomy",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "One row per skill node in the default skill taxonomy (`taxonomy_id = 0`) from `custom_skills_taxonomy_v3_overall_latest`",
@@ -1779,7 +2016,7 @@ const DATASETS = [
   },
   {
     "id": "modeled_wage_file",
-    "index": 15,
+    "index": 17,
     "name": "Modeled wage file",
     "path": "occupation_geography_wages/<YYYYMMDD>/",
     "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation × geography (county FIPS preferred, else CBSA) × period",
@@ -1900,7 +2137,7 @@ const DATASETS = [
   },
   {
     "id": "wages_raw",
-    "index": 16,
+    "index": 18,
     "name": "Raw wages file",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "Posting date × metro_area × NAICS × O*NET raw salary figures",
@@ -1936,7 +2173,7 @@ const DATASETS = [
   },
   {
     "id": "unified_postings_weekly",
-    "index": 17,
+    "index": 19,
     "name": "Unified postings (weekly)",
     "path": "unified_postings/<YYYYMMDD>/unified_postings_*.parquet",
     "grain": "One row per COSMOS unified job posting for US-headquartered in-scope companies",
@@ -2257,7 +2494,7 @@ const DATASETS = [
   },
   {
     "id": "unified_posting_skills_weekly",
-    "index": 18,
+    "index": 20,
     "name": "Unified posting skills (weekly)",
     "path": "unified_postings_skills/<YYYYMMDD>/unified_postings_skills_*.parquet",
     "grain": "One row per skill extracted from a unified posting that is in the weekly postings delivery",
@@ -2480,7 +2717,7 @@ const DATASETS = [
         "description": "Human-readable rule that assigned the skill_importance category"
       }
     ],
-    "index": 19
+    "index": 21
   }
 ];
 
