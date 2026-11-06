@@ -1484,7 +1484,7 @@ const DATASETS = [
     "name": "Role ↔ CIP-2020 crosswalk",
     "path": "role_cip2020_crosswalk/<YYYYMMDD>/",
     "grain": "One row per role_v3_id × CIP-2020 × award_level_band × grad_year_band (US education + US first job)",
-    "notes": "Cadence: Annual. Single combined file. Population: US education (school country) AND US first-job country. School country from rsid_v2_country_v3 / location v4 / university_country. Job is the first US position within 10 years of education end. Education end dates from 2010-01-01. Grad bands: 2010_2014, 2015_2019, 2020_plus (no before_2010). 2020+ graduates have a shorter observable window (right-censored). Award bands: high_school, associate, bachelor, masters (degree_level 4–5 incl. MBA), doctorate (6), certificate (title heuristic when degree_level uncoded), unknown_or_other. One observation per user × CIP × award band (`n_users`). Support floor n_users >= 20. Shipped without redundant transition/weight/version/country columns; shares are precomputed as p_* / role_prevalence_shrunk. CIP/role totals are within award × grad-year band (before floor); summing role totals across bands can double-count. country is always US. SFTP: parquet + csv with _SUCCESS last.",
+    "notes": "Cadence: Annual. Single combined file. Population: US education (school country) AND US first-job country. School country from rsid_v2_country_v3 / location v4 / university_country. Job is the first US position within 10 years of education end. Education end dates from 2010-01-01. Grad bands: 2010_2014, 2015_2019, 2020_plus (no before_2010). 2020+ graduates have a shorter observable window (right-censored). Award bands: high_school, associate, bachelor, masters (degree_level 4–5 incl. MBA), doctorate (6), certificate (title heuristic when degree_level uncoded), unknown_or_other. One observation per user × CIP × award band (`n_users`). Support floor n_users >= 20. Shipped without redundant transition/weight/country columns; includes role taxonomy major/minor version; shares precomputed as p_* / role_prevalence_shrunk. CIP/role totals are within award × grad-year band (before floor); summing role totals across bands can double-count. country is always US. SFTP: parquet + csv with _SUCCESS last.",
     "fields": [
       {
         "name": "cip2020_code",
@@ -1515,6 +1515,16 @@ const DATASETS = [
         "name": "grad_year_band",
         "type": "VARCHAR",
         "description": "Education end-date band: 2010_2014 / 2015_2019 / 2020_plus (before_2010 excluded by population filter)"
+      },
+      {
+        "name": "role_taxonomy_major_version",
+        "type": "NUMBER",
+        "description": "Role taxonomy major version (3 for role_v3)"
+      },
+      {
+        "name": "role_taxonomy_minor_version",
+        "type": "NUMBER",
+        "description": "Role taxonomy minor version used for role labels"
       },
       {
         "name": "n_users",
