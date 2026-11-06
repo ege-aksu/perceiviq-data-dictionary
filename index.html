@@ -227,7 +227,7 @@ const DATASETS = [
     "id": "company_reference",
     "name": "Company reference",
     "path": "company_ref/<YYYYMMDD>/company_ref_*.parquet",
-    "grain": "Hierarchical full_company_ref_monthly rows for in-scope list companies and current pint subsidiaries (one row per rcid × child relationship)",
+    "grain": "Hierarchical full_company_ref_monthly rows for in-scope list companies and current pint subsidiaries (one row per rcid \u00d7 child relationship)",
     "notes": "Monthly SFTP. Same columns as the first-phase manual company directory: location v4 HQ fields, exchange/naics names, child/ultimate-parent, and public_private_flag from dashboard ent_type. Scoped to the same US-HQ shared public/private universe used by dynamics/sentiment (list + subs).",
     "cadence": "Monthly",
     "fields": [
@@ -363,7 +363,7 @@ const DATASETS = [
     "id": "workforce_dynamics",
     "name": "Workforce dynamics",
     "path": "workforce_dynamics/<YYYYMMDD>/workforce_dynamics_*.parquet",
-    "grain": "Monthly company × seniority × region × country × state × metro_area × county × role_k10 × role_k50 × onet_code (from May 2021). role_k150 omitted per client request.",
+    "grain": "Monthly company \u00d7 seniority \u00d7 region \u00d7 country \u00d7 state \u00d7 metro_area \u00d7 county \u00d7 role_k10 \u00d7 role_k50 \u00d7 onet_code (from May 2021). role_k150 omitted per client request.",
     "notes": "Rust WFD. role_k10 delivered as job_category. onet_code from O*NET taxonomy id 61. county is an input custom dim from position county_v3 (not a Rust reference location). role_k150 is not included.",
     "cadence": "Monthly",
     "fields": [
@@ -479,7 +479,7 @@ const DATASETS = [
     "id": "skill_dynamics",
     "name": "Skill dynamics",
     "path": "skill_dynamics/<YYYYMMDD>/skill_dynamics_*.parquet",
-    "grain": "Monthly company × seniority × region × country × state × metro_area × county × role_k10 × onet_code × skill_k15/k50/k150 (from May 2021)",
+    "grain": "Monthly company \u00d7 seniority \u00d7 region \u00d7 country \u00d7 state \u00d7 metro_area \u00d7 county \u00d7 role_k10 \u00d7 onet_code \u00d7 skill_k15/k50/k150 (from May 2021)",
     "notes": "SkillDynamicsPipeline at skill_k50 with skill taxonomy v3.1 (latest 3.1.x patch). skill_k15_index / skill_k50_index / skill_k150_index are stable cluster indices from custom_skills_taxonomy_v3_overall_versioned_dag. onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). SFTP layout: skill_dynamics/<YYYYMMDD>/ with YYYYMMDD = batch month + 15th; folder also contains _SUCCESS.",
     "cadence": "Monthly",
     "fields": [
@@ -600,7 +600,7 @@ const DATASETS = [
     "id": "postings_dynamics",
     "name": "Postings dynamics",
     "path": "postings_dynamics/<YYYYMMDD>/postings_dynamics_*.parquet",
-    "grain": "Monthly company × country × state × metro_area × role_k10 × role_k50 × role_k150 (from May 2021). No county.",
+    "grain": "Monthly company \u00d7 country \u00d7 state \u00d7 metro_area \u00d7 role_k10 \u00d7 role_k50 \u00d7 role_k150 (from May 2021). No county.",
     "notes": "Unified PostingPipeline; role_k10 delivered as job_category.",
     "cadence": "Monthly",
     "fields": [
@@ -696,7 +696,7 @@ const DATASETS = [
     "id": "sentiment_review_trends",
     "name": "Sentiment review trends",
     "path": "sentiment_review_trends/<YYYYMMDD>/sentiment_review_trends_*.parquet",
-    "grain": "Company × region × country × state × metro_area × county × role_k10 × role_k50 × role_k150 × onet_code × month, with geography_grain in {county, state, region}",
+    "grain": "Company \u00d7 region \u00d7 country \u00d7 state \u00d7 metro_area \u00d7 county \u00d7 role_k10 \u00d7 role_k50 \u00d7 role_k150 \u00d7 onet_code \u00d7 month, with geography_grain in {county, state, region}",
     "notes": "Glassdoor star ratings (12-month rolling ReviewTrends), then privacy post-process: if num_reviews < 10, fine geo/occupation dims become 'undisclosed' and ratings are re-averaged weighted by num_reviews (rows kept). Coarser state/region cuts included in the same file via geography_grain. Review location *_v3, not company HQ.",
     "cadence": "Monthly",
     "fields": [
@@ -827,7 +827,7 @@ const DATASETS = [
     "id": "sentiment_scores",
     "name": "Sentiment scores",
     "path": "sentiment_scores/<YYYYMMDD>/sentiment_scores_*.parquet",
-    "grain": "Monthly company × region × country × state × metro_area × county (per-month NLP v2 themes; review location geo, not HQ)",
+    "grain": "Monthly company \u00d7 region \u00d7 country \u00d7 state \u00d7 metro_area \u00d7 county (per-month NLP v2 themes; review location geo, not HQ)",
     "notes": "Built with ReviewTrends (window=0) so each month uses only that month's reviews. Geography is Glassdoor review *_v3 location (same anchor as review trends), not company headquarters. Columns are confidence-weighted v2 theme scores (sentiment_{theme}). num_reviews is the in-month review count for the cell.",
     "cadence": "Monthly",
     "fields": [
@@ -1113,8 +1113,8 @@ const DATASETS = [
     "id": "cert_dynamics",
     "name": "Certification dynamics",
     "path": "cert_dynamics/<YYYYMMDD>/cert_dynamics_*.parquet",
-    "grain": "geography_grain × month × region/state/county/metro × role_k10 × onet × cert_k10 × cert_k50 × issuer",
-    "notes": "Inflow by certification startdate (LinkedIn self-reported start; completion proxy). Attributed to an in-scope position active on startdate. Titles mapped to clusters; unmatched excluded. issuer from company_cleaned (fallback company). onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). geography_grain in {county, state, region}. Min cell size 10 → fine dims become 'undisclosed' (re-aggregated; rows not dropped).",
+    "grain": "geography_grain \u00d7 month \u00d7 region/state/county/metro \u00d7 role_k10 \u00d7 onet \u00d7 cert_k10 \u00d7 cert_k50 \u00d7 issuer",
+    "notes": "Inflow by certification startdate (LinkedIn self-reported start; completion proxy). Attributed to an in-scope position active on startdate. Titles mapped to clusters; unmatched excluded. issuer from company_cleaned (fallback company). onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). geography_grain in {county, state, region}. Min cell size 10 \u2192 fine dims become 'undisclosed' (re-aggregated; rows not dropped).",
     "cadence": "Monthly",
     "fields": [
       {
@@ -1184,8 +1184,8 @@ const DATASETS = [
     "id": "course_dynamics",
     "name": "Course dynamics",
     "path": "course_dynamics/<YYYYMMDD>/course_dynamics_*.parquet",
-    "grain": "geography_grain × region/state/county/metro × role_k10 × onet × course_k10 × course_k50 (no month — static stock)",
-    "notes": "Static stock: courses have no earn dates; attributed to a current in-scope position (enddate null). Titles mapped to clusters; unmatched excluded. onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). geography_grain in {county, state, region}. Min cell size 10 → undisclosed (same privacy pattern as cert_dynamics). No issuer column.",
+    "grain": "geography_grain \u00d7 region/state/county/metro \u00d7 role_k10 \u00d7 onet \u00d7 course_k10 \u00d7 course_k50 (no month \u2014 static stock)",
+    "notes": "Static stock: courses have no earn dates; attributed to a current in-scope position (enddate null). Titles mapped to clusters; unmatched excluded. onet_code from taxonomy id 61 via role_v3_id (same as WFD / weekly postings). geography_grain in {county, state, region}. Min cell size 10 \u2192 undisclosed (same privacy pattern as cert_dynamics). No issuer column.",
     "cadence": "Monthly",
     "fields": [
       {
@@ -1246,7 +1246,7 @@ const DATASETS = [
     "name": "Certification coverage rates",
     "path": "cert_coverage/<YYYYMMDD>/cert_coverage_*.parquet",
     "grain": "One row per region",
-    "notes": "Companion QA for cert_dynamics: title→cluster match rate and geo-attribution rate (among title-matched certs with a startdate), by region.",
+    "notes": "Companion QA for cert_dynamics: title\u2192cluster match rate and geo-attribution rate (among title-matched certs with a startdate), by region.",
     "cadence": "Monthly",
     "fields": [
       {
@@ -1297,7 +1297,7 @@ const DATASETS = [
     "name": "Course coverage rates",
     "path": "course_coverage/<YYYYMMDD>/course_coverage_*.parquet",
     "grain": "One row per region",
-    "notes": "Companion QA for course_dynamics: title→cluster match rate and attribution to a current in-scope position, by region.",
+    "notes": "Companion QA for course_dynamics: title\u2192cluster match rate and attribution to a current in-scope position, by region.",
     "cadence": "Monthly",
     "fields": [
       {
@@ -1336,7 +1336,7 @@ const DATASETS = [
   {
     "id": "role_taxonomy_soc_crosswalk",
     "index": 11,
-    "name": "Role taxonomy ↔ SOC crosswalk",
+    "name": "Role taxonomy \u2194 SOC crosswalk",
     "path": "first_phase_deliveries/<YYYYMM>/",
     "grain": "One row per `role_v3_id`, joining the Revelio role taxonomy (taxonomy_id = 0) to the SOC / O*NET custom taxonomy (taxonomy_id = 61, job_taxonomy_version = 3.2.0)",
     "notes": "Cadence: Annual. Revelio-side role columns are prefixed `revelio_`. SOC-side columns retain `role_k*` names plus `*_common_titles`.",
@@ -1481,10 +1481,10 @@ const DATASETS = [
   },
   {
     "id": "role_cip2020_crosswalk",
-    "name": "Role ↔ CIP-2020 crosswalk",
+    "name": "Role \u2194 CIP-2020 crosswalk",
     "path": "role_cip2020_crosswalk/<YYYYMMDD>/",
-    "grain": "One row per role_v3_id × CIP-2020 × award_level_band × grad_year_band (US education + US first job)",
-    "notes": "Cadence: Annual. Single combined file. Population: US education (school country) AND US first-job country. School country from rsid_v2_country_v3 / location v4 / university_country. Job is the first US position within 10 years of education end. Education end dates from 2010-01-01. Grad bands: 2010_2014, 2015_2019, 2020_plus (no before_2010). 2020+ graduates have a shorter observable window (right-censored). Award bands: high_school, associate, bachelor, masters (degree_level 4–5 incl. MBA), doctorate (6), certificate (title heuristic when degree_level uncoded), unknown_or_other. One observation per user × CIP × award band (`n_users`). Support floor n_users >= 20. Shipped without redundant transition/weight/country columns; includes role taxonomy major/minor version; shares precomputed as p_* / role_prevalence_shrunk. CIP/role totals are within award × grad-year band (before floor); summing role totals across bands can double-count. country is always US. SFTP: parquet + csv with _SUCCESS last.",
+    "grain": "One row per role_v3_id \u00d7 CIP-2020 \u00d7 award_level_band \u00d7 grad_year_band (US education + US first job)",
+    "notes": "Cadence: Annual. Single combined file. Population: US education (school country) AND US first-job country. School country from rsid_v2_country_v3 / location v4 / university_country. Job is the first US position within 10 years of education end. Education end dates from 2010-01-01. Grad bands: 2010_2014, 2015_2019, 2020_plus (no before_2010). 2020+ graduates have a shorter observable window (right-censored). Award bands: high_school, associate, bachelor, masters (degree_level 4\u20135 incl. MBA), doctorate (6), certificate (title heuristic when degree_level uncoded), unknown_or_other. One observation per user \u00d7 CIP \u00d7 award band (`n_users` = `n_transitions`). Support floor n_users >= 20. Shares p_role_given_cip and p_cip_given_role are probability-weighted (SUM of COALESCE(probability_pick, 1.0)); rebuild exactly as w_transitions / w_transitions_cip and w_transitions / w_transitions_role \u2014 simple n_users ratios will not match, especially for p_cip_given_role. After the 20-person floor, kept rows cover only a fraction of each CIP/role band's people (often well under half for CIPs); summing p_role_given_cip over kept roles is therefore well below 1. Use cip_kept_user_coverage / role_kept_user_coverage for the kept share, and n_users_cip / n_users_role (or w_transitions_cip / w_transitions_role) to recover the remainder mass in dropped thin cells. avg_confidence averages field-mapping confidence/probability; exact CIP matches with null pick scores are filled as 1.0. About 35% of rows have n_users < 30 (by design of the floor) \u2014 treat small cells as less reliable. CIP/role totals are within award \u00d7 grad-year band (before floor); summing role totals across bands can double-count. country is always US. Includes role taxonomy major/minor version and per-role transition totals (n_transitions_role / w_transitions_role). SFTP: parquet + csv with _SUCCESS last.",
     "fields": [
       {
         "name": "cip2020_code",
@@ -1517,6 +1517,11 @@ const DATASETS = [
         "description": "Education end-date band: 2010_2014 / 2015_2019 / 2020_plus (before_2010 excluded by population filter)"
       },
       {
+        "name": "country",
+        "type": "VARCHAR",
+        "description": "Always US (US education + US first job)"
+      },
+      {
         "name": "role_taxonomy_major_version",
         "type": "NUMBER",
         "description": "Role taxonomy major version (3 for role_v3)"
@@ -1527,39 +1532,79 @@ const DATASETS = [
         "description": "Role taxonomy minor version used for role labels"
       },
       {
+        "name": "n_transitions",
+        "type": "NUMBER",
+        "description": "Transition count in this cell; equals n_users after user \u00d7 CIP \u00d7 award dedupe"
+      },
+      {
         "name": "n_users",
         "type": "NUMBER",
-        "description": "Distinct people in this cell (one obs per person × CIP × award); pairs with n_users < 20 are dropped"
+        "description": "Distinct people in this cell (one obs per person \u00d7 CIP \u00d7 award); pairs with n_users < 20 are dropped. ~35% of shipped rows have n_users < 30 \u2014 shares on thin cells are noisier."
+      },
+      {
+        "name": "w_transitions",
+        "type": "FLOAT",
+        "description": "Probability-weighted transition mass in this cell: SUM(COALESCE(probability_pick, 1.0)). Use with w_transitions_cip / w_transitions_role to rebuild p_*"
+      },
+      {
+        "name": "n_transitions_cip",
+        "type": "NUMBER",
+        "description": "CIP transition count within the same award \u00d7 grad-year band before the user floor (repeated on each role row \u2014 do not SUM across roles)"
       },
       {
         "name": "n_users_cip",
         "type": "NUMBER",
-        "description": "CIP distinct users within the same award × grad-year band (US education + US job population; repeated on each role row — do not SUM across roles)"
+        "description": "CIP distinct users within the same award \u00d7 grad-year band before the floor (repeated on each role row \u2014 do not SUM across roles). Denominator for unweighted CIP coverage / remainder."
+      },
+      {
+        "name": "w_transitions_cip",
+        "type": "FLOAT",
+        "description": "Probability-weighted CIP total within award \u00d7 grad-year band before the floor. Denominator for p_role_given_cip (= w_transitions / w_transitions_cip)"
+      },
+      {
+        "name": "n_transitions_role",
+        "type": "NUMBER",
+        "description": "Role transition total within the same award \u00d7 grad-year band before the floor. Per-role transition totals requested for rebuild/diagnostics."
       },
       {
         "name": "n_users_role",
         "type": "NUMBER",
-        "description": "Role distinct users within the same award × grad-year band. Summing across bands can double-count people with multiple degrees."
+        "description": "Role distinct users within the same award \u00d7 grad-year band before the floor. Summing across bands can double-count people with multiple degrees."
+      },
+      {
+        "name": "w_transitions_role",
+        "type": "FLOAT",
+        "description": "Probability-weighted role total within award \u00d7 grad-year band before the floor. Denominator for p_cip_given_role (= w_transitions / w_transitions_role)"
       },
       {
         "name": "avg_confidence",
         "type": "FLOAT",
-        "description": "Average field-mapping confidence/probability for the CIP assignment"
+        "description": "Average field-mapping confidence/probability for the CIP assignment. Exact matches (field/multi/degree exact_match) have null pick scores upstream and are filled as 1.0"
       },
       {
         "name": "p_role_given_cip",
         "type": "FLOAT",
-        "description": "Share of this CIP band's transitions going to this role"
+        "description": "Probability-weighted share of this CIP band going to this role (= w_transitions / w_transitions_cip). Sum over kept roles is < 1 because of the 20-person floor; see cip_kept_user_coverage"
       },
       {
         "name": "p_cip_given_role",
         "type": "FLOAT",
-        "description": "Share of this role band's transitions coming from this CIP (rebuildable via role totals)"
+        "description": "Probability-weighted share of this role band coming from this CIP (= w_transitions / w_transitions_role). Will not match n_users / n_users_role"
       },
       {
         "name": "role_prevalence_shrunk",
         "type": "FLOAT",
-        "description": "p_role_given_cip shrunk toward the overall role rate"
+        "description": "p_role_given_cip shrunk toward the overall role rate (prior strength 50 on weighted mass)"
+      },
+      {
+        "name": "cip_kept_user_coverage",
+        "type": "FLOAT",
+        "description": "Fraction of this CIP band's people (n_users_cip) retained in shipped rows after the floor: SUM(kept n_users) / n_users_cip. Remainder = 1 \u2212 this value lives in dropped thin cells"
+      },
+      {
+        "name": "role_kept_user_coverage",
+        "type": "FLOAT",
+        "description": "Fraction of this role band's people (n_users_role) retained after the floor: SUM(kept n_users) / n_users_role"
       }
     ],
     "cadence": "Annual",
@@ -1777,7 +1822,7 @@ const DATASETS = [
     "index": 15,
     "name": "Modeled wage file",
     "path": "occupation_geography_wages/<YYYYMMDD>/",
-    "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation × geography (county FIPS preferred, else CBSA) × period",
+    "grain": "Monthly aggregates of US unified postings with modeled salary, by occupation \u00d7 geography (county FIPS preferred, else CBSA) \u00d7 period",
     "notes": "Cadence: Monthly. Built from postings with non-null modeled salary and employer; geography requires a county or CBSA match. Active vs new flags expand postings across months between post and remove dates (6-month implied close when remove is null and 6 months after post is in the past).",
     "fields": [
       {
@@ -1853,12 +1898,12 @@ const DATASETS = [
       {
         "name": "entry_level_wage",
         "type": "FLOAT",
-        "description": "Median active base salary where seniority ≤ 1"
+        "description": "Median active base salary where seniority \u2264 1"
       },
       {
         "name": "entry_level_total_comp",
         "type": "FLOAT",
-        "description": "Median active total compensation where seniority ≤ 1"
+        "description": "Median active total compensation where seniority \u2264 1"
       },
       {
         "name": "active_posting_count",
@@ -1898,7 +1943,7 @@ const DATASETS = [
     "index": 16,
     "name": "Raw wages file",
     "path": "first_phase_deliveries/<YYYYMM>/",
-    "grain": "Posting date × metro_area × NAICS × O*NET raw salary figures",
+    "grain": "Posting date \u00d7 metro_area \u00d7 NAICS \u00d7 O*NET raw salary figures",
     "notes": "Cadence: Annual. Delivered under first_phase_deliveries/{batchtime}/ as wages_raw. Companion to the modeled occupation_geography_wages file. Uses raw posted salaries (not Revelio modeled wages). Exact measure columns follow the delivered extract; grain dimensions below.",
     "fields": [
       {
@@ -1924,7 +1969,7 @@ const DATASETS = [
       {
         "name": "salary (and related raw measures)",
         "type": "FLOAT",
-        "description": "Raw posted salary figures at this grain — not modeled wage estimates"
+        "description": "Raw posted salary figures at this grain \u2014 not modeled wage estimates"
       }
     ],
     "cadence": "Annual"
@@ -2015,7 +2060,7 @@ const DATASETS = [
       {
         "name": "onet_code",
         "type": "VARCHAR(256)",
-        "description": "O*NET-SOC code from taxonomy id 61 via role_v3_id (role_k10000); same mapping as monthly workforce dynamics — not mapped_role→MAPPEDROLE2ONET2019"
+        "description": "O*NET-SOC code from taxonomy id 61 via role_v3_id (role_k10000); same mapping as monthly workforce dynamics \u2014 not mapped_role\u2192MAPPEDROLE2ONET2019"
       },
       {
         "name": "esco_code",
@@ -2355,7 +2400,7 @@ const DATASETS = [
     "id": "ddn_onet_skill_categories",
     "name": "ONET DDN skill categories",
     "path": "ddn/<YYYYMMDD>/ONET_DDN_skill_categories_v2.csv",
-    "grain": "One row per ONET occupation × skill assigned to an importance category (top-N per category)",
+    "grain": "One row per ONET occupation \u00d7 skill assigned to an importance category (top-N per category)",
     "notes": "Cadence: Quarterly. DDN framework skill-importance categories for ONET occupations: Defining / Distinguishing / Necessary. File: ONET_DDN_skill_categories_v2.csv under ddn/<YYYYMMDD>/, with _SUCCESS written last.",
     "cadence": "Quarterly",
     "fields": [
@@ -2407,7 +2452,7 @@ const DATASETS = [
       {
         "name": "cnt",
         "type": "NUMBER",
-        "description": "Posting / skill count supporting the occupation×skill pair"
+        "description": "Posting / skill count supporting the occupation\u00d7skill pair"
       },
       {
         "name": "n_valid",
