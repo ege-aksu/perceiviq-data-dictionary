@@ -1487,24 +1487,34 @@ const DATASETS = [
     "notes": "Cadence: Annual. Single combined file. Population: US education (school country) AND US first-job country. School country from rsid_v2_country_v3 / location v4 / university_country. Job is the first US position within 10 years of education end. Education end dates from 2010-01-01. Grad bands: 2010_2014, 2015_2019, 2020_plus (no before_2010). 2020+ graduates have a shorter observable window (right-censored). Award bands: high_school, associate, bachelor, masters (degree_level 4–5 incl. MBA), doctorate (6), certificate (title heuristic when degree_level uncoded), unknown_or_other. One observation per user × CIP × award band (`n_users`). Support floor n_users >= 20. Shipped without redundant transition/weight/version/country columns; shares are precomputed as p_* / role_prevalence_shrunk. CIP/role totals are within award × grad-year band (before floor); summing role totals across bands can double-count. country is always US. SFTP: parquet + csv with _SUCCESS last.",
     "fields": [
       {
-        "name": "p_role_given_cip",
-        "type": "FLOAT",
-        "description": "Share of this CIP band's transitions going to this role"
-      },
-      {
         "name": "cip2020_code",
         "type": "VARCHAR",
         "description": "CIP-2020 field-of-study code"
       },
       {
-        "name": "role_prevalence_shrunk",
-        "type": "FLOAT",
-        "description": "p_role_given_cip shrunk toward the overall role rate"
+        "name": "cip2020_title",
+        "type": "VARCHAR",
+        "description": "Most common mapped field title among supporting transitions"
       },
       {
-        "name": "p_cip_given_role",
-        "type": "FLOAT",
-        "description": "Share of this role band's transitions coming from this CIP (rebuildable via role totals)"
+        "name": "role_v3_id",
+        "type": "NUMBER",
+        "description": "Revelio role ID of the first US job after the selected education"
+      },
+      {
+        "name": "role_k10000_name",
+        "type": "VARCHAR",
+        "description": "O*NET-style role title for interpretability"
+      },
+      {
+        "name": "award_level_band",
+        "type": "VARCHAR",
+        "description": "high_school / associate / bachelor / masters (incl. MBA) / doctorate / certificate (title heuristic when degree level uncoded) / unknown_or_other"
+      },
+      {
+        "name": "grad_year_band",
+        "type": "VARCHAR",
+        "description": "Education end-date band: 2010_2014 / 2015_2019 / 2020_plus (before_2010 excluded by population filter)"
       },
       {
         "name": "n_users",
@@ -1517,19 +1527,9 @@ const DATASETS = [
         "description": "CIP distinct users within the same award × grad-year band (US education + US job population; repeated on each role row — do not SUM across roles)"
       },
       {
-        "name": "cip2020_title",
-        "type": "VARCHAR",
-        "description": "Most common mapped field title among supporting transitions"
-      },
-      {
-        "name": "role_k10000_name",
-        "type": "VARCHAR",
-        "description": "O*NET-style role title for interpretability"
-      },
-      {
-        "name": "role_v3_id",
+        "name": "n_users_role",
         "type": "NUMBER",
-        "description": "Revelio role ID of the first US job after the selected education"
+        "description": "Role distinct users within the same award × grad-year band. Summing across bands can double-count people with multiple degrees."
       },
       {
         "name": "avg_confidence",
@@ -1537,19 +1537,19 @@ const DATASETS = [
         "description": "Average field-mapping confidence/probability for the CIP assignment"
       },
       {
-        "name": "n_users_role",
-        "type": "NUMBER",
-        "description": "Role distinct users within the same award × grad-year band. Summing across bands can double-count people with multiple degrees."
+        "name": "p_role_given_cip",
+        "type": "FLOAT",
+        "description": "Share of this CIP band's transitions going to this role"
       },
       {
-        "name": "grad_year_band",
-        "type": "VARCHAR",
-        "description": "Education end-date band: 2010_2014 / 2015_2019 / 2020_plus (before_2010 excluded by population filter)"
+        "name": "p_cip_given_role",
+        "type": "FLOAT",
+        "description": "Share of this role band's transitions coming from this CIP (rebuildable via role totals)"
       },
       {
-        "name": "award_level_band",
-        "type": "VARCHAR",
-        "description": "high_school / associate / bachelor / masters (incl. MBA) / doctorate / certificate (title heuristic when degree level uncoded) / unknown_or_other"
+        "name": "role_prevalence_shrunk",
+        "type": "FLOAT",
+        "description": "p_role_given_cip shrunk toward the overall role rate"
       }
     ],
     "cadence": "Annual",
