@@ -1484,7 +1484,7 @@ const DATASETS = [
     "name": "Role ↔ CIP-2020 crosswalk",
     "path": "role_cip2020_crosswalk/<YYYYMMDD>/",
     "grain": "One row per role_v3_id × CIP-2020 × award_level_band × grad_year_band (US first-job population)",
-    "notes": "Cadence: Annual. Single combined file. Population: US first-job country. Education end dates from 2010-01-01. First subsequent job within 10 years of education end. Duplicate CIP hits on the same education are collapsed. Pairs with fewer than 20 distinct users are dropped. CIP/role totals are within the same award_level_band × grad_year_band so shares stay rebuildable after the floor. Filter award_level_band / grad_year_band as needed. Short certificates are not separately coded. SFTP: parquet + csv with _SUCCESS last.",
+    "notes": "Cadence: Annual. Single combined file. Population: first-job country = United States (education may be non-US). Because the US filter is applied when selecting the job, the job is the person's first US job within the window, not necessarily their first job worldwide. Education end dates from 2010-01-01; first US job within 10 years of education end. Grad bands present: 2010_2014, 2015_2019, 2020_plus (no before_2010). 2020+ graduates have a shorter observable post-grad window, so first-job outcomes are slightly right-censored. Award bands include a certificate heuristic from degree-title text when degree_level is uncoded; remaining short credentials may stay in unknown_or_other. Graduate lumps master's and doctorates. Observations collapse to one per user × CIP × award band (latest education end), so n_transitions = n_users. Support floor: n_users >= 20. CIP/role totals are within award_level_band × grad_year_band and are computed before the floor; summing role totals across bands can double-count people with multiple degrees. country is always US. SFTP: parquet + csv with _SUCCESS last.",
     "fields": [
       {
         "name": "cip2020_code",
@@ -1494,12 +1494,12 @@ const DATASETS = [
       {
         "name": "cip2020_title",
         "type": "VARCHAR",
-        "description": "Most common mapped field title for that CIP among supporting transitions"
+        "description": "Most common mapped field title among supporting transitions"
       },
       {
         "name": "role_v3_id",
         "type": "NUMBER",
-        "description": "Revelio role ID of the first subsequent job"
+        "description": "Revelio role ID of the first US job after the selected education"
       },
       {
         "name": "role_k10000_name",
@@ -1509,67 +1509,72 @@ const DATASETS = [
       {
         "name": "award_level_band",
         "type": "VARCHAR",
-        "description": "Award band: high_school, associate, bachelor, graduate, unknown_or_other (certificates usually unknown_or_other)"
+        "description": "high_school / associate / bachelor / graduate (master's+doctorate) / certificate (title heuristic when degree level uncoded) / unknown_or_other"
       },
       {
         "name": "grad_year_band",
         "type": "VARCHAR",
-        "description": "Graduation-year band from education end date: before_2010, 2010_2014, 2015_2019, 2020_plus"
+        "description": "Education end-date band: 2010_2014 / 2015_2019 / 2020_plus (before_2010 excluded by population filter)"
+      },
+      {
+        "name": "country",
+        "type": "VARCHAR",
+        "description": "Always US — population is first-job country = United States"
       },
       {
         "name": "role_taxonomy_major_version",
         "type": "NUMBER",
-        "description": "Major version of the role taxonomy (3 for role_v3)"
+        "description": "Role taxonomy major version (3)"
       },
       {
         "name": "role_taxonomy_minor_version",
         "type": "NUMBER",
-        "description": "Minor version of the role taxonomy slice used for role labels"
+        "description": "Role taxonomy minor version used for role labels"
       },
       {
         "name": "n_transitions",
         "type": "NUMBER",
-        "description": "Education→first-job pairs for this cell after education×CIP dedupe"
+        "description": "Equals n_users after collapsing to one observation per person × CIP × award band"
       },
       {
         "name": "n_users",
         "type": "NUMBER",
-        "description": "Distinct people behind those transitions"
+        "description": "Distinct people in this cell; pairs with n_users < 20 are dropped"
       },
       {
         "name": "w_transitions",
         "type": "FLOAT",
-        "description": "Transitions weighted by field-mapping probability"
+        "description": "Person count weighted by field-mapping probability"
       },
       {
         "name": "n_transitions_cip",
         "type": "NUMBER",
-        "description": "CIP total transitions within the same award × grad-year band (denominator)"
+        "description": "CIP total within the same award × grad-year band (denominator)"
       },
       {
         "name": "n_users_cip",
         "type": "NUMBER",
-        "description": "CIP total distinct users within the same award × grad-year band (denominator; repeated per role row)"
+        "description": "CIP distinct users within the same award × grad-year band (US population; repeated on each role row — do not SUM across roles)"
       },
       {
         "name": "w_transitions_cip",
         "type": "FLOAT",
-        "description": "CIP-level weighted total within the same award × grad-year band"
+        "description": "CIP weighted total within the same award × grad-year band"
       },
       {
         "name": "n_transitions_role",
         "type": "NUMBER",
-        "description": "Role total transitions within the same award × grad-year band (denominator)"
+        "description": "Role total within the same award × grad-year band (denominator; computed before support floor)"
       },
       {
         "name": "n_users_role",
         "type": "NUMBER",
-        "description": "Role total distinct users within the same award × grad-year band"
+        "description": "Role distinct users within the same award × grad-year band. Summing across bands can double-count people with multiple degrees."
       },
       {
         "name": "w_transitions_role",
         "type": "FLOAT",
-        "description": "Role-level weighted total within the same award × grad-year band"
+        "description": "Role weighted total within the same award × grad-year band"
       },
       {
         "name": "avg_confidence",
@@ -1579,12 +1584,12 @@ const DATASETS = [
       {
         "name": "p_role_given_cip",
         "type": "FLOAT",
-        "description": "Share of this CIP band's transitions that go to this role"
+        "description": "Share of this CIP band's transitions going to this role"
       },
       {
         "name": "p_cip_given_role",
         "type": "FLOAT",
-        "description": "Share of this role band's transitions that come from this CIP"
+        "description": "Share of this role band's transitions coming from this CIP (rebuildable via role totals)"
       },
       {
         "name": "role_prevalence_shrunk",
